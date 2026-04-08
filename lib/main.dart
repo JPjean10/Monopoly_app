@@ -17,19 +17,6 @@ class PantallaPrincipal extends StatefulWidget {
 }
 
 class _PantallaPrincipalState extends State<PantallaPrincipal> {
-  /*   @override
-  void initState() {
-    super.initState();
-    // Timer para cambiar de pantalla a los 5 segundos
-    Timer(const Duration(seconds: 10), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainMenuScreen()),
-        );
-      }
-    });
-  } */
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,18 +43,6 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class MainMenuScreen extends StatelessWidget {
-  const MainMenuScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Menú Principal")),
-      body: const Center(child: Text("Bienvenido al Juego")),
     );
   }
 }
