@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:monopoly_app/pantalla/registrar/RegistroJugador.dart';
+import 'dart:async';
 
 void main() {
   runApp(
@@ -17,6 +19,19 @@ class PantallaPrincipal extends StatefulWidget {
 }
 
 class _PantallaPrincipalState extends State<PantallaPrincipal> {
+  @override
+  void initState() {
+    super.initState();
+    // Cambiamos a la siguiente pantalla después de 5 segundos
+    Timer(const Duration(seconds: 1), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const RegistroJugador()),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
