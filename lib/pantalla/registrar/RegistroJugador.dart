@@ -3,6 +3,7 @@ import 'dart:convert'; // Para manejar JSON
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/pantalla/registrar/servicio/jugador_service.dart';
+import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 
 class RegistroJugador extends StatefulWidget {
   // Cambia a StatefulWidget para manejar el controlador
@@ -93,31 +94,7 @@ class _RegistroJugadorState extends State<RegistroJugador> {
                       nombre,
                     );
 
-                    if (resultado['statusCode'] == 201) {
-                      // ✅ Éxito real desde backend
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(resultado['userMssg']),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } else if (resultado['statusCode'] == 401) {
-                      // ⚠️ Error controlado desde backend
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(resultado['userMssg']),
-                          backgroundColor: Colors.orange,
-                        ),
-                      );
-                    } else {
-                      // 💥 Error general
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(resultado['userMssg']),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
+                    MensajeHelper.mostrarResultado(context, resultado);
                   },
                 ),
               ],
