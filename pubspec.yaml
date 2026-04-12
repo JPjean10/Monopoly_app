@@ -41,3 +41,4 @@ flutter:
   assets:
     - assets/fondo.png
     - assets/icon/Advance.png
+    - assets/icon/Close.png

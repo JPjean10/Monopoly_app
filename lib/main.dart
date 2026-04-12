@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/pantalla/registrar/RegistroJugador.dart';
+import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
 import 'dart:async';
 
 void main() {

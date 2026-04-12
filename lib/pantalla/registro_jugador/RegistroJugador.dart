@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert'; // Para manejar JSON
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
-import 'package:monopoly_app/pantalla/registrar/servicio/jugador_service.dart';
+import 'package:monopoly_app/pantalla/registro_jugador/servicio/jugador_service.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 
 class RegistroJugador extends StatefulWidget {
@@ -82,7 +82,7 @@ class _RegistroJugadorState extends State<RegistroJugador> {
 
                 const SizedBox(height: 25),
 
-                Button_disabled_styles(
+                Button_completo_styles(
                   text: "iniciar juego",
                   assetIcon: 'assets/icon/Advance.png',
                   isEnabled: _isButtonEnabled, // Usa la variable de estado
@@ -92,6 +92,7 @@ class _RegistroJugadorState extends State<RegistroJugador> {
                     // 1. Llamas al servicio
                     final resultado = await _jugadorService.insertarJugador(
                       nombre,
+                      context,
                     );
 
                     MensajeHelper.mostrarResultado(context, resultado);
