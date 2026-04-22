@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Celular 1 (jean)",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "23073RPBFL"
+        },
+                {
+            "name": "Celular 2 (mama_tables)",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "2409BRN2CL"
+        },
+        {
+            "name": "Celular 2 (mama_celular)",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "moto e22"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Monopoly en ambos",
+            "configurations": [
+                "Celular 1 (jean)",
+                "Celular 2 (mama_tables)"
+            ]
+        },
+                {
+            "name": "Monopoly en tres celulares",
+            "configurations": [
+                "Celular 1 (jean)",
+                "Celular 2 (mama_tables)",
+                "Celular 3 (mama_celular)"
+            ]
+        }
+    ]
+}

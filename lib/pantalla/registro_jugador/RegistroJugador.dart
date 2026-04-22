@@ -3,6 +3,7 @@ import 'dart:convert'; // Para manejar JSON
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/pantalla/registro_jugador/servicio/jugador_service.dart';
+import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 
 class RegistroJugador extends StatefulWidget {
@@ -95,6 +96,32 @@ class _RegistroJugadorState extends State<RegistroJugador> {
                       context,
                     );
 
+                    if (resultado['statusCode'] == 201) {
+                      // Leemos el campo 'esBanco' que el servicio inyectó en el mapa
+                      bool esBanco = resultado['esBanco'] ?? false;
+
+                      if (esBanco) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SalaEsperajugadorBanco(
+                              nombreUsuario:
+                                  nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
+                            ),
+                          ),
+                        );
+                      } else {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SalaEsperajugador(
+                              nombreUsuario:
+                                  nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
+                            ),
+                          ),
+                        );
+                      }
+                    }
                     MensajeHelper.mostrarResultado(context, resultado);
                   },
                 ),

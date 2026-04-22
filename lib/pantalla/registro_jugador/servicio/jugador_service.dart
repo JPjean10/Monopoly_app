@@ -5,6 +5,16 @@ import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class JugadorService {
+  // Método para obtener la lista de jugadores (usando tu sp_ListarJugadores)
+  Future<Map<String, dynamic>> listarJugadores() async {
+    try {
+      final response = await Dioclient.dio.get(ApiConst.controlador_jugador);
+      return response.data;
+    } catch (e) {
+      return {'status': false, 'userMssg': 'Error al obtener lista'};
+    }
+  }
+
   // Asegúrate de que el método esté DENTRO de las llaves de la clase
   Future<Map<String, dynamic>> insertarJugador(
     String nombre,
@@ -16,12 +26,31 @@ class JugadorService {
         data: {'nombre': nombre},
       );
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SalaesperajugadorBanco()),
-      );
+      Map<String, dynamic> resultadoInsert = response.data;
+
+      // 2. Si la inserción fue exitosa, consultamos la lista para saber el rol
+      if (resultadoInsert['statusCode'] == 201) {
+        final resLista = await listarJugadores();
+
+        if (resLista['statusCode'] == 200) {
+          List jugadores = resLista['data'];
+
+          // Buscamos el registro que acabamos de insertar por el nombre
+          var miRegistro = jugadores.firstWhere(
+            (j) => j['nombre'] == nombre,
+            orElse: () => null,
+          );
+
+          if (miRegistro != null) {
+            // Agregamos la información del rol al mapa de respuesta
+            resultadoInsert['esBanco'] = miRegistro['esBanco'];
+            resultadoInsert['jugadorId'] = miRegistro['jugadorId'];
+          }
+        }
+      }
 
       // Si llega aquí, es un 201 o el código que configuraste en validateStatus
-      return response.data;
+      return resultadoInsert;
     } on DioException catch (e) {
       // Si el servidor responde (ej. 401 Unauthorized), devolvemos su JSON real
       if (e.response != null && e.response?.data != null) {
