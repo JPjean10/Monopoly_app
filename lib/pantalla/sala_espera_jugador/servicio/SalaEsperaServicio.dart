@@ -7,8 +7,7 @@ class SalaEsperaServicio {
   Future<Map<String, dynamic>> eliminarJugador(int jugadorId) async {
     try {
       final response = await Dioclient.dio.delete(
-        ApiConst.controlador_jugador,
-        data: {'jugadorId': jugadorId}, // Coincide con tu JugadorModel.cs
+        "${ApiConst.controlador_jugador}/$jugadorId", // Esto coincide con [HttpDelete("{jugadorId}")]
       );
       return response.data;
     } on DioException catch (e) {

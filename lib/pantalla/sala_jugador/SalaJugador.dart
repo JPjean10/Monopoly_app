@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
 
 class Salajugador extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -43,15 +44,51 @@ class _SalajugadorState extends State<Salajugador> {
         title: const Text("Monopoly"),
         backgroundColor: const Color(0xFF24B9F9),
         actions: [
-          IconButton(
+          PopupMenuButton<int>(
+            // Icono del menú
             icon: Image.asset(
               'assets/icon/menu.png',
               width: 30,
               color: Colors.white,
             ),
-            onPressed: () {
-              print("Menú de banco presionado");
+            // Posición para que baje un poco y no tape el icono
+            offset: const Offset(0, 50),
+            onSelected: (value) {
+              if (value == 1) {
+                // Navegar a pantalla de Perfil/Datos
+                /*           Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PantallaDatosJugador(datos: widget.datosJugador),
+            ),
+          ); */
+              } else if (value == 2) {
+                // Lógica para cerrar sesión o salir
+                /*           Navigator.pop(context); */
+                // AQUI NAVEGAS A LA NUEVA PANTALLA
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PantallaPropiedades(
+                      datosJugador:
+                          widget.datosJugador, // Pasas los datos que ya tienes
+                    ),
+                  ),
+                );
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 1,
+                child: Row(
+                  children: [SizedBox(width: 10), Text("Subir nivel de renta")],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 2,
+                child: Row(children: [SizedBox(width: 10), Text("propiedad")]),
+              ),
+            ],
           ),
         ],
       ),

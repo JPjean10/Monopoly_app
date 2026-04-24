@@ -25,12 +25,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/fondo.png
-    - assets/icon/Advance.png
-    - assets/icon/Close.png
-    - assets/icon/menu.png
-    - assets/icon/rent.png
-    - assets/icon/cards.png
-    - assets/icon/bank.png
-    - assets/icon/home_page.png
-    - assets/icon/payment_confirmation.png
-    - assets/icon/push_notifications.png
+    - assets/icon/         # Incluye todos los iconos de esa carpeta
+    - assets/cartas/       # <--- Esto incluye todos los archivos dentro de 'cartas'
