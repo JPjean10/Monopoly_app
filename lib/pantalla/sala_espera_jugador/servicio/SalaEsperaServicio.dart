@@ -11,8 +11,15 @@ class SalaEsperaServicio {
       );
       return response.data;
     } on DioException catch (e) {
-      return e.response?.data ??
-          {'status': false, 'userMssg': 'Error al eliminar'};
+      // Si el servidor responde (ej. 401 Unauthorized), devolvemos su JSON real
+      if (e.response != null && e.response?.data != null) {
+        return e.response?.data;
+      }
+      // Error de red o servidor apagado
+      return {'status': false, 'userMssg': 'Error de conexión con el servidor'};
+    } catch (e) {
+      // Cualquier otro error inesperado
+      return {'status': false, 'userMssg': 'Error inesperado: $e'};
     }
   }
 }

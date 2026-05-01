@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_bucador_num_Styles.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/servicio/PropiedadServicio.dart';
+import 'package:signalr_netcore/hub_connection.dart';
+import 'package:signalr_netcore/hub_connection_builder.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -15,15 +17,27 @@ class PantallaPropiedades extends StatefulWidget {
 class _PantallaPropiedadesState extends State<PantallaPropiedades> {
   final Propiedadservicio _servicio = Propiedadservicio();
   final TextEditingController _searchController = TextEditingController();
-
+  late HubConnection _hubConnection;
   List<dynamic> _todasLasPropiedades = [];
   List<dynamic> _propiedadesFiltradas = [];
   bool _cargando = true;
+  final PageController _pageController = PageController();
+  int _indiceActual = 0; // Esta variable guardará el índice real
 
   @override
   void initState() {
     super.initState();
+    _initSignalR();
     _obtenerPropiedades();
+  }
+
+  void _initSignalR() {
+    _hubConnection = HubConnectionBuilder()
+        .withUrl(
+          "http://192.168.1.100:8080/gamehub",
+        ) // Usa la ruta de tu Program.cs
+        .build();
+    _hubConnection.start();
   }
 
   void _obtenerPropiedades() async {
@@ -109,14 +123,21 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                   ),
 
                   // 3. IMAGEN DE CARTA GRANDE
-                  // 3. IMAGEN DE CARTA GRANDE
                   Expanded(
                     child: _propiedadesFiltradas.isEmpty
                         ? const Center(
                             child: Text("No se encontró la propiedad"),
                           )
                         : PageView.builder(
+                            controller:
+                                _pageController, // Asigna el controlador
                             itemCount: _propiedadesFiltradas.length,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _indiceActual =
+                                    index; // Actualiza el índice cuando cambie la página
+                              });
+                            },
                             itemBuilder: (context, index) {
                               final prop = _propiedadesFiltradas[index];
                               return Column(
@@ -197,7 +218,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                       children: [
                         Expanded(
                           child: Button_styles(
-                            text: "REGRESAR",
+                            text: "regresar",
                             assetIcon: 'assets/icon/Return.png',
                             isEnabled: true,
                             onPressed: () => Navigator.pop(context),
@@ -206,11 +227,46 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                         const SizedBox(width: 15),
                         Expanded(
                           child: Button_styles(
-                            text: "COMPRAR",
+                            text: "comprar",
                             assetIcon: 'assets/icon/home_purchase.png',
                             isEnabled: true,
-                            onPressed: () {
-                              // Lógica de compra
+                            onPressed: () async {
+                              final propActual =
+                                  _propiedadesFiltradas[_indiceActual];
+
+                              // Extraemos los nombres además de los IDs
+                              final int jugadorId =
+                                  widget.datosJugador['jugadorId'];
+                              final String nombreJugador = widget
+                                  .datosJugador['nombre']; // Nombre del que compra
+                              final int propiedadId = propActual['propiedadId'];
+                              final String nombrePropiedad =
+                                  propActual['nombre']; // Nombre de la avenida
+                              final String mensajeSolicitud =
+                                  "solicita comprar $nombrePropiedad";
+
+                              if (_hubConnection.state ==
+                                  HubConnectionState.Connected) {
+                                // Enviamos 4 argumentos en lugar de 2
+                                await _hubConnection.invoke(
+                                  "EnviarSolicitudCompra",
+                                  args: [
+                                    jugadorId,
+                                    propiedadId,
+                                    nombreJugador,
+                                    mensajeSolicitud,
+                                  ],
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Solicitud enviada al banco...",
+                                    ),
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              }
                             },
                           ),
                         ),
@@ -221,5 +277,12 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
               ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 }

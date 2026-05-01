@@ -61,7 +61,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
       setState(() {
         jugadores = res['data'];
         // Habilitar botón si hay 2 o más jugadores
-        _isIniciarEnabled = jugadores.length >= 2;
+        _isIniciarEnabled = jugadores.length >= 1;
       });
     }
   }
@@ -200,7 +200,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
                         assetIcon: 'assets/icon/Advance.png',
                         isEnabled: _isIniciarEnabled,
                         onPressed: () async => {
-                          await _hubConnection.invoke("StartGame"),
+                          await _hubConnection.invoke("IniciarJuego"),
                         },
                       ),
                     ),

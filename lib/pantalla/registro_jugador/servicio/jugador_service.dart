@@ -10,8 +10,16 @@ class JugadorService {
     try {
       final response = await Dioclient.dio.get(ApiConst.controlador_jugador);
       return response.data;
+    } on DioException catch (e) {
+      // Si el servidor responde (ej. 401 Unauthorized), devolvemos su JSON real
+      if (e.response != null && e.response?.data != null) {
+        return e.response?.data;
+      }
+      // Error de red o servidor apagado
+      return {'status': false, 'userMssg': 'Error de conexión con el servidor'};
     } catch (e) {
-      return {'status': false, 'userMssg': 'Error al obtener lista'};
+      // Cualquier otro error inesperado
+      return {'status': false, 'userMssg': 'Error inesperado: $e'};
     }
   }
 
