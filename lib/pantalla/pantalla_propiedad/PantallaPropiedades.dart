@@ -7,8 +7,13 @@ import 'package:signalr_netcore/hub_connection_builder.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
+  final int value; // Agregamos el nuevo parámetro
 
-  const PantallaPropiedades({super.key, required this.datosJugador});
+  const PantallaPropiedades({
+    super.key,
+    required this.datosJugador,
+    required this.value,
+  });
 
   @override
   State<PantallaPropiedades> createState() => _PantallaPropiedadesState();
@@ -41,13 +46,27 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
   }
 
   void _obtenerPropiedades() async {
-    final res = await _servicio.listarPropiedad();
-    if (res['statusCode'] == 200) {
-      setState(() {
-        _todasLasPropiedades = res['data'];
-        _propiedadesFiltradas = _todasLasPropiedades;
-        _cargando = false;
-      });
+    if (widget.value == 1) {
+      // Si venimos de "Subir nivel de renta", filtramos solo las propiedades del jugador
+      final int jugadorId = widget.datosJugador['jugadorId'];
+      final res = await _servicio.listarPropiedad(jugadorId);
+      if (res['statusCode'] == 200) {
+        setState(() {
+          _todasLasPropiedades = res['data'];
+          _propiedadesFiltradas = _todasLasPropiedades;
+          _cargando = false;
+        });
+      }
+    } else {
+      // Si venimos de "propiedad", mostramos todas las propiedades
+      final res = await _servicio.listarPropiedad(0);
+      if (res['statusCode'] == 200) {
+        setState(() {
+          _todasLasPropiedades = res['data'];
+          _propiedadesFiltradas = _todasLasPropiedades;
+          _cargando = false;
+        });
+      }
     }
   }
 
@@ -227,8 +246,10 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                         const SizedBox(width: 15),
                         Expanded(
                           child: Button_styles(
-                            text: "comprar",
-                            assetIcon: 'assets/icon/home_purchase.png',
+                            text: widget.value == 1 ? "subir nivel" : "comprar",
+                            assetIcon: widget.value == 1
+                                ? 'assets/icon/dwelling-level-up.png'
+                                : 'assets/icon/home_purchase.png',
                             isEnabled: true,
                             onPressed: () async {
                               final propActual =

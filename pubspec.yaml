@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  mobile_scanner: ^5.1.0  # Añade esta línea debajo de dependencies
+  qr_flutter: ^4.1.0      # Ya que también la estamos usando para generar el QR
   dio: ^5.4.1
   retrofit: 4.1.0
   json_annotation: 4.8.1

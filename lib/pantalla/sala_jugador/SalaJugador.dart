@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
+import 'package:monopoly_app/pantalla/pantalla_escaneo/PantallaEscaneo.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/PantallaBancarrota.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/servicio/SalaJugadorServicio.dart';
+import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
@@ -22,25 +27,71 @@ class _SalajugadorState extends State<Salajugador> {
   late HubConnection _hubConnection;
   final Salajugadorservicio _salaServicio = Salajugadorservicio();
   Map<String, dynamic>? _datosJugadorActual;
+  List<dynamic> _historialTransacciones = [];
+  List<dynamic> _propiedadesJugador = [];
+  final List<int> _propiedadesSeleccionadasIds = [];
+  int _vueltoCalculado = 0;
+  bool _cargandoPropiedades = false;
+  int _montoActual = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refrescarDatosJugador();
+    });
     _datosJugadorActual = widget.datosJugador;
+    _montoActual = widget.datosJugador['monto'] ?? 0;
     _initSignalR();
     _cargarDatosServidor();
+    _cargarHistorial();
   }
 
-  // MÉTODO PARA CARGAR/REFRESCAR DESDE EL PROCEDIMIENTO ALMACENADO
-  Future<void> _cargarDatosServidor() async {
-    int id =
+  void _actualizarVueltoProyectado() {
+    int saldoActual =
+        _datosJugadorActual?['monto'] ?? widget.datosJugador['monto'] ?? 0;
+    int acumuladoVenta = 0;
+
+    for (var item in _propiedadesJugador) {
+      final propiedad = item['propiedad'];
+      final int propId = item['propiedadId'] ?? 0;
+      if (_propiedadesSeleccionadasIds.contains(propId) && propiedad != null) {
+        acumuladoVenta += (propiedad['precio'] as int? ?? 0);
+      }
+    }
+
+    setState(() {
+      _vueltoCalculado = saldoActual + acumuladoVenta;
+    });
+  }
+
+  void _cargarDatosServidor() async {
+    setState(() {
+      _cargandoPropiedades = true;
+    });
+
+    int miId =
         _datosJugadorActual?['jugadorId'] ?? widget.datosJugador['jugadorId'];
-    final nuevosDatos = await _salaServicio.obtenerDetalleJugador(id);
-    if (nuevosDatos != null) {
+    final datosRefresh = await _salaServicio.obtenerDetalleJugador(miId);
+
+    if (datosRefresh != null) {
       setState(() {
-        _datosJugadorActual = nuevosDatos;
+        _datosJugadorActual = datosRefresh;
       });
     }
+
+    final propiedades = await _salaServicio.obtenerPropiedadesJugador(miId);
+    setState(() {
+      _propiedadesJugador = propiedades;
+      _cargandoPropiedades = false;
+    });
+  }
+
+  Future<void> _cargarHistorial() async {
+    final lista = await _salaServicio.obtenerHistorialCompras();
+    setState(() {
+      _historialTransacciones = lista;
+    });
   }
 
   void _initSignalR() async {
@@ -64,18 +115,104 @@ class _SalajugadorState extends State<Salajugador> {
       });
     });
 
-    // LISTENER PARA RECARGAR DATOS TRAS COMPRA EXITOSA
-    _hubConnection.on("actualizar_datos_partida", (arguments) {
-      int idComprador = arguments![0] as int;
-      int miId =
-          _datosJugadorActual?['jugadorId'] ?? widget.datosJugador['jugadorId'];
+    // LISTENER SIMPLIFICADO: Cuando el backend grita "actualizar_datos_partida"
+    _hubConnection.on("actualizar_datos_partida", (List<Object?>? arguments) {
+      print("🔔 SignalR: Alerta global recibida (Argumento: $arguments).");
 
-      // Si yo compré, recargo para ver mi nuevo saldo
-      if (idComprador == miId) {
-        _cargarDatosServidor();
-      }
+      // No importa quién inició la acción, yo voy a SQL a traer mi saldo actualizado
+      print("🔄 Refrescando mis datos locales desde la base de datos...");
+      _refrescarDatosJugador();
+      _cargarDatosServidor();
+      _cargarHistorial();
     });
+
     _hubConnection.start();
+  }
+
+  // --- FUNCIÓN PARA MOSTRAR EL QR (LÓGICA DEL DUEÑO) ---
+  void _mostrarQrPropiedad(int propiedadId, int nivel, String nombreProp) {
+    // El formato exacto es "COD|propiedadId|nivel"
+    final String qrData = "COD|$propiedadId|$nivel";
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Text(
+          "COBRAR RENTA\n${nombreProp.toUpperCase()}",
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        content: SizedBox(
+          width: 220,
+          height: 220,
+          child: Center(
+            child: QrImageView(
+              data: qrData,
+              version: QrVersions.auto,
+              size: 200.0,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: Color(0xFF24B9F9),
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              "CERRAR",
+              style: TextStyle(color: Color(0xFF24B9F9)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refrescarDatosJugador() async {
+    int miJugadorId = widget.datosJugador['jugadorId'] ?? 0;
+
+    // 1. Llama al endpoint de tu SP sp_ObtenerDetalleJugador
+    final nuevosDatos = await _salaServicio.obtenerDetalleJugador(miJugadorId);
+
+    if (nuevosDatos != null) {
+      // Convertimos el monto que viene de SQL a un entero de Dart
+      int montoObtenido =
+          int.tryParse(nuevosDatos!['tarjeta']['monto'].toString()) ?? 0;
+
+      print("💰 Saldo real detectado: $montoObtenido");
+
+      // 2. ¡EL FILTRO DE INTERRUPCIÓN!
+      if (montoObtenido < 0) {
+        print("🚨 ¡Saldo menor a cero! Interrumpiendo al jugador...");
+
+        // Traemos sus propiedades directo de la base de datos
+        List<dynamic> propiedades = await _salaServicio
+            .obtenerPropiedadesJugador(miJugadorId);
+
+        if (mounted) {
+          // Bloqueamos la interfaz mandándolo OBLIGATORIAMENTE a la otra pantalla
+          final bool? solucionado = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PantallaBancarrota(
+                jugadorId: miJugadorId,
+                saldoNegativo: montoObtenido, // Pasa el -200
+                propiedadesIniciales: propiedades,
+              ),
+            ),
+          );
+
+          // Si el jugador vende/hipoteca con éxito y sale de números negativos:
+          if (solucionado == true) {
+            print("✅ Salió de la quiebra. Re-verificando saldo positivo...");
+            _refrescarDatosJugador(); // Refresca para pintar su nuevo saldo en el Header
+          }
+        }
+      }
+    }
   }
 
   @override
@@ -124,20 +261,24 @@ class _SalajugadorState extends State<Salajugador> {
             offset: const Offset(0, 50),
             onSelected: (value) {
               if (value == 1) {
-                // Navegar a pantalla de Perfil/Datos
-                /*           Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PantallaDatosJugador(datos: widget.datosJugador),
-            ),
-          ); */
-              } else if (value == 2) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PantallaPropiedades(
                       datosJugador:
                           widget.datosJugador, // Pasas los datos que ya tienes
+                      value: 1,
+                    ),
+                  ),
+                );
+              } else if (value == 0) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PantallaPropiedades(
+                      datosJugador:
+                          widget.datosJugador, // Pasas los datos que ya tienes
+                      value: 0,
                     ),
                   ),
                 );
@@ -151,7 +292,7 @@ class _SalajugadorState extends State<Salajugador> {
                 ),
               ),
               const PopupMenuItem(
-                value: 2,
+                value: 0,
                 child: Row(children: [SizedBox(width: 10), Text("propiedad")]),
               ),
             ],
@@ -228,7 +369,51 @@ class _SalajugadorState extends State<Salajugador> {
               // Botón Rent
               IconButton(
                 icon: Image.asset('assets/icon/rent.png', width: 30),
-                onPressed: () {},
+                onPressed: () async {
+                  // 1. Navegamos a la pantalla de escaneo que ya tienes lista
+                  final resultadoQR = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PantallaEscaneo(),
+                    ),
+                  );
+
+                  // Obtenemos TU ID (el jugador que está escaneando)
+                  int miId =
+                      _datosJugadorActual?['jugadorId'] ??
+                      widget.datosJugador['jugadorId'];
+
+                  // 2. Verificamos que el código tenga el formato esperado "COD|cobradorId|propId|nivel"
+                  if (resultadoQR != null &&
+                      resultadoQR.toString().startsWith("COD|")) {
+                    final partes = resultadoQR.toString().split('|');
+
+                    // Creamos el modelo para enviarlo al backend[cite: 8]
+                    final datosPropiedad = PropiJugadorModel(
+                      jugadorId: miId, // <--- Aquí pones TU ID (el que escanea)
+                      propiedadId: int.parse(partes[1]), // ID de la Propiedad
+                      nivelActual: int.parse(
+                        partes[2],
+                      ), // Nivel de la renta (Casa/Hotel)
+                    );
+
+                    // 4. EJECUCIÓN REAL DEL SERVICIO
+                    final respuesta = await _salaServicio.enviarCobroRenta(
+                      datosPropiedad,
+                    );
+
+                    // 5. Manejo de respuesta
+                    if (mounted) {
+                      MensajeHelper.mostrarResultado(context, respuesta);
+
+                      if (respuesta['statusCode'] == 201) {
+                        // Refrescamos datos locales tras el pago exitoso
+                        _cargarDatosServidor();
+                        _cargarHistorial();
+                      }
+                    }
+                  }
+                },
               ),
 
               // ESPACIO ENTRE RENT Y CARDS (Aumentado)
@@ -251,6 +436,85 @@ class _SalajugadorState extends State<Salajugador> {
                 ),
             ],
           ),
+        ),
+        const SizedBox(height: 20),
+
+        Expanded(
+          child: _propiedadesJugador.isEmpty
+              ? const Center(child: Text("No tienes propiedades aún"))
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  itemCount: _propiedadesJugador.length,
+                  itemBuilder: (context, index) {
+                    final prop = _propiedadesJugador[index];
+
+                    // 1. EXTRAER VALORES CON SEGURIDAD (Soporta minúsculas y mayúsculas)
+                    final int propId = prop['propiedadId'];
+                    final int nivel = prop['nivelActual'];
+                    final String nombre = prop['nombre'];
+                    final int renta = prop['renta'];
+                    final int precioCompra = prop['propiedad']['precio'];
+
+                    return GestureDetector(
+                      // AL PRESIONAR: Levantamos el QR de forma segura
+                      onTap: () {
+                        if (propId != 0) {
+                          _mostrarQrPropiedad(propId, nivel, nombre);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Error: ID de propiedad no válido"),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(3, 3),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                nombre.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "NIVEL: $nivel",
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  Text(
+                                    "RENTA: $renta",
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -364,6 +628,7 @@ class _SalajugadorState extends State<Salajugador> {
                               _solicitudesPendientes.removeAt(index);
                               if (_solicitudesPendientes.isEmpty) {
                                 _hayPagosPendientes = false;
+                                _cargarHistorial();
                               }
                             });
                           }
@@ -381,6 +646,71 @@ class _SalajugadorState extends State<Salajugador> {
   }
 
   Widget _buildNotificaciones() {
-    return const Center(child: Text("Pantalla de Notificaciones"));
+    if (_historialTransacciones.isEmpty) {
+      return const Center(child: Text("No hay actividad reciente"));
+    }
+
+    return RefreshIndicator(
+      onRefresh:
+          _cargarHistorial, // Llamada directa a cargar historial[cite: 18, 19]
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        itemCount: _historialTransacciones.length,
+        itemBuilder: (context, index) {
+          final item = _historialTransacciones[index];
+
+          // Mapeo de datos del modelo[cite: 12, 14]
+          String tipoEstado = "${item['tipoCompra']}: ${item['estado']}"
+              .toLowerCase();
+          String propietario = "propietario: ${item['nombreJugador']}"
+              .toLowerCase();
+          String propiedad = "propiedad: ${item['nombrePropiedad']}"
+              .toUpperCase();
+          String mensaje = item['mensage'] ?? "";
+
+          return Card(
+            elevation: 5,
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20), // Bordes redondeados
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tipoEstado,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    propietario,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    propiedad,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  // Mensaje dinámico debajo de la propiedad
+                  if (mensaje.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      "mensaje: $mensaje",
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

@@ -10,4 +10,5 @@ class ApiConst {
 
   // JugadorControlador
   static const String buscarJugador = '/buscar';
+  static const String cobrarRenta = '/CobrarRenta';
 }

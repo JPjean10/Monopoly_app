@@ -61,7 +61,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
       setState(() {
         jugadores = res['data'];
         // Habilitar botón si hay 2 o más jugadores
-        _isIniciarEnabled = jugadores.length >= 1;
+        _isIniciarEnabled = jugadores.length >= 2;
       });
     }
   }
