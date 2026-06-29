@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
+import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/pantalla/pantalla_escaneo/PantallaEscaneo.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/PantallaBancarrota.dart';
@@ -33,6 +34,7 @@ class _SalajugadorState extends State<Salajugador> {
   int _vueltoCalculado = 0;
   bool _cargandoPropiedades = false;
   int _montoActual = 0;
+  final TextEditingController id_o_nombre_text = TextEditingController();
 
   @override
   void initState() {
@@ -47,22 +49,95 @@ class _SalajugadorState extends State<Salajugador> {
     _cargarHistorial();
   }
 
-  void _actualizarVueltoProyectado() {
-    int saldoActual =
-        _datosJugadorActual?['monto'] ?? widget.datosJugador['monto'] ?? 0;
-    int acumuladoVenta = 0;
+  void _mostrarOpcionesBanco(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors
+          .transparent, // Permite ver los bordes redondeados del contenedor
+      isScrollControlled: true, // Por si el contenido crece
+      builder: (BuildContext context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24.0),
+              topRight: Radius.circular(24.0),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño al contenido
+            children: [
+              // Barra superior indicadora de arrastre (Opcional, estética)
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-    for (var item in _propiedadesJugador) {
-      final propiedad = item['propiedad'];
-      final int propId = item['propiedadId'] ?? 0;
-      if (_propiedadesSeleccionadasIds.contains(propId) && propiedad != null) {
-        acumuladoVenta += (propiedad['precio'] as int? ?? 0);
-      }
-    }
+              // Título del BottomSheet
+              const Text(
+                "BANCO",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 24),
 
-    setState(() {
-      _vueltoCalculado = saldoActual + acumuladoVenta;
-    });
+              TextField_styles(
+                hintText: 'nombre',
+                assetIcon: 'assets/icon/search.png',
+                controller: id_o_nombre_text, // PASAS EL CONTROLADOR AQUÍ
+              ),
+              const SizedBox(height: 24),
+
+              // Opción 2: Pasar por GO
+              _buildOpcionBanco(
+                context: context,
+                icon: Icons.directions_run_rounded,
+                texto: "cobrar GO",
+                onTap: () {
+                  Navigator.pop(context);
+                  print("se preciono go");
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // Opción 3: Cobrar Impuestos
+              _buildOpcionBanco(
+                context: context,
+                icon: Icons.gavel_rounded,
+                texto: "pagar carcel",
+                onTap: () {
+                  Navigator.pop(context);
+                  print("se preciono pagar carcel");
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // Opción 4: Ventas Masivas
+              _buildOpcionBanco(
+                context: context,
+                icon: Icons.add_location,
+                texto: "pagar viage",
+                onTap: () {
+                  Navigator.pop(context);
+                  print("se preciono pagar viaje");
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _cargarDatosServidor() async {
@@ -209,6 +284,7 @@ class _SalajugadorState extends State<Salajugador> {
           if (solucionado == true) {
             print("✅ Salió de la quiebra. Re-verificando saldo positivo...");
             _refrescarDatosJugador(); // Refresca para pintar su nuevo saldo en el Header
+            _cargarDatosServidor();
           }
         }
       }
@@ -266,7 +342,7 @@ class _SalajugadorState extends State<Salajugador> {
                   MaterialPageRoute(
                     builder: (context) => PantallaPropiedades(
                       datosJugador:
-                          widget.datosJugador, // Pasas los datos que ya tienes
+                          _datosJugadorActual!, // Pasas los datos que ya tienes
                       value: 1,
                     ),
                   ),
@@ -277,7 +353,7 @@ class _SalajugadorState extends State<Salajugador> {
                   MaterialPageRoute(
                     builder: (context) => PantallaPropiedades(
                       datosJugador:
-                          widget.datosJugador, // Pasas los datos que ya tienes
+                          _datosJugadorActual!, // Pasas los datos que ya tienes
                       value: 0,
                     ),
                   ),
@@ -383,7 +459,7 @@ class _SalajugadorState extends State<Salajugador> {
                       _datosJugadorActual?['jugadorId'] ??
                       widget.datosJugador['jugadorId'];
 
-                  // 2. Verificamos que el código tenga el formato esperado "COD|cobradorId|propId|nivel"
+                  // 2. Verificamos que el código tenga el formato esperado "COD|propId|nivel"
                   if (resultadoQR != null &&
                       resultadoQR.toString().startsWith("COD|")) {
                     final partes = resultadoQR.toString().split('|');
@@ -432,7 +508,9 @@ class _SalajugadorState extends State<Salajugador> {
               if (esBanco)
                 IconButton(
                   icon: Image.asset('assets/icon/bank.png', width: 30),
-                  onPressed: () {},
+                  onPressed: () {
+                    _mostrarOpcionesBanco(context);
+                  },
                 ),
             ],
           ),
@@ -710,6 +788,53 @@ class _SalajugadorState extends State<Salajugador> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildOpcionBanco({
+    required BuildContext context,
+    required IconData icon,
+    required String texto,
+    required VoidCallback onTap,
+    Color colorTexto = Colors.black87,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[100], // Fondo gris suave idéntico a la imagen
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: colorTexto == Colors.redAccent
+                  ? Colors.redAccent
+                  : Colors.grey[700],
+              size: 22,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              texto,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: colorTexto,
+              ),
+            ),
+            const Spacer(),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.grey[400],
+              size: 14,
+            ),
+          ],
+        ),
       ),
     );
   }

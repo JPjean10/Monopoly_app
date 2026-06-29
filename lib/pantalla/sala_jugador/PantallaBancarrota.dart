@@ -196,7 +196,8 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
                         final String nombre =
                             propiedad['nombre'] ?? "Propiedad";
                         // Usamos precioCompra (vuelve 200 por defecto si viene nulo)
-                        final int precio = propiedad['precioCompra'] ?? 200;
+                        final int precio =
+                            propiedad!['propiedad']?['precio'] ?? 200; //
 
                         final bool seleccionada = _propiedadesSeleccionadasIds
                             .contains(id);
