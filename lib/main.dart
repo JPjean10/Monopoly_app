@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
 import 'dart:async';
 
-void main() {
+void main() async {
+  // 2. ASEGURA LA INICIALIZACIÓN DE LOS BINDINGS
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 3. BLOQUEA LA ORIENTACIÓN A VERTICAL
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(
     const MaterialApp(
       home: PantallaPrincipal(),

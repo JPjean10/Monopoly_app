@@ -44,6 +44,49 @@ class _RegistroJugadorState extends State<RegistroJugador> {
     });
   }
 
+  Button_completo_styles btn_ButtonCompleto() {
+    return Button_completo_styles(
+      text: "iniciar juego",
+      assetIcon: 'assets/icon/Advance.png',
+      isEnabled: _isButtonEnabled, // Usa la variable de estado
+      onPressed: () async {
+        final nombre = nombre_text.text;
+
+        // 1. Llamas al servicio
+        final resultado = await _jugadorService.insertarJugador(
+          nombre,
+          context,
+        );
+
+        if (resultado['statusCode'] == 201) {
+          // Leemos el campo 'esBanco' que el servicio inyectó en el mapa
+          bool esBanco = resultado['esBanco'] ?? false;
+
+          if (esBanco) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SalaEsperajugadorBanco(
+                  nombreUsuario: nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
+                ),
+              ),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SalaEsperajugador(
+                  nombreUsuario: nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
+                ),
+              ),
+            );
+          }
+        }
+        MensajeHelper.mostrarResultado(context, resultado);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,48 +126,7 @@ class _RegistroJugadorState extends State<RegistroJugador> {
 
                 const SizedBox(height: 25),
 
-                Button_completo_styles(
-                  text: "iniciar juego",
-                  assetIcon: 'assets/icon/Advance.png',
-                  isEnabled: _isButtonEnabled, // Usa la variable de estado
-                  onPressed: () async {
-                    final nombre = nombre_text.text;
-
-                    // 1. Llamas al servicio
-                    final resultado = await _jugadorService.insertarJugador(
-                      nombre,
-                      context,
-                    );
-
-                    if (resultado['statusCode'] == 201) {
-                      // Leemos el campo 'esBanco' que el servicio inyectó en el mapa
-                      bool esBanco = resultado['esBanco'] ?? false;
-
-                      if (esBanco) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SalaEsperajugadorBanco(
-                              nombreUsuario:
-                                  nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
-                            ),
-                          ),
-                        );
-                      } else {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SalaEsperajugador(
-                              nombreUsuario:
-                                  nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                    MensajeHelper.mostrarResultado(context, resultado);
-                  },
-                ),
+                btn_ButtonCompleto(),
               ],
             ),
           ),
