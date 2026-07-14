@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert'; // Para manejar JSON
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
-import 'package:monopoly_app/pantalla/registro_jugador/servicio/jugador_service.dart';
+import 'package:monopoly_app/controladores/registro_controller.dart';
+import 'package:monopoly_app/servicio/jugador_service.dart';
 import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 
@@ -51,38 +52,10 @@ class _RegistroJugadorState extends State<RegistroJugador> {
       isEnabled: _isButtonEnabled, // Usa la variable de estado
       onPressed: () async {
         final nombre = nombre_text.text;
-
-        // 1. Llamas al servicio
-        final resultado = await _jugadorService.insertarJugador(
-          nombre,
-          context,
+        RegistroController.registrarYNavegar(
+          nombre: nombre_text.text,
+          context: context,
         );
-
-        if (resultado['statusCode'] == 201) {
-          // Leemos el campo 'esBanco' que el servicio inyectó en el mapa
-          bool esBanco = resultado['esBanco'] ?? false;
-
-          if (esBanco) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SalaEsperajugadorBanco(
-                  nombreUsuario: nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
-                ),
-              ),
-            );
-          } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SalaEsperajugador(
-                  nombreUsuario: nombre_text.text, // <--- PASA EL NOMBRE AQUÍ
-                ),
-              ),
-            );
-          }
-        }
-        MensajeHelper.mostrarResultado(context, resultado);
       },
     );
   }

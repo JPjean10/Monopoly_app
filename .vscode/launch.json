@@ -7,23 +7,11 @@
             "type": "dart",
             "deviceId": "2409BRN2CL"
         },
-                {
-            "name": "Celular 2 (mama_tables)",
-            "request": "launch",
-            "type": "dart",
-            "deviceId": "2409BRN2CL"
-        },
-        {
-            "name": "Celular 2 (mama_celular)",
-            "request": "launch",
-            "type": "dart",
-            "deviceId": "moto e22"
-        },
         {
             "name": "emulador (jean_emulador)",
             "request": "launch",
             "type": "dart",
-            "deviceId": "OXF AN00"
+            "deviceId": "23116PN5BC"
         }
     ],
     "compounds": [
@@ -34,20 +22,5 @@
                 "emulador (jean_emulador)"
             ]
         },
-        {
-            "name": "jean y mama_celular",
-            "configurations": [
-                "Celular 1 (jean)",
-                "Celular 2 (mama_celular)"
-            ]
-        },
-        {
-            "name": "Monopoly en tres celulares",
-            "configurations": [
-                "Celular 1 (jean)",
-                "Celular 2 (mama_tables)",
-                "Celular 3 (mama_celular)"
-            ]
-        }
     ]
 }

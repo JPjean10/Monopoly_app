@@ -4,9 +4,10 @@ import 'dart:convert';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text/Text_styles.dart';
 import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
-import 'package:monopoly_app/pantalla/registro_jugador/servicio/jugador_service.dart';
-import 'package:monopoly_app/pantalla/sala_espera_jugador/servicio/SalaEsperaServicio.dart';
+import 'package:monopoly_app/servicio/jugador_service.dart';
+import 'package:monopoly_app/servicio/SalaEsperaServicio.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/SalaJugador.dart';
+import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart'; // Para manejar JSON
 
@@ -36,7 +37,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
   void _initSignalR() async {
     // Cambia la IP por la de tu servidor
     _hubConnection = HubConnectionBuilder()
-        .withUrl("http://192.168.1.100:8080/gameHub")
+        .withUrl(ApiConst.ws) // Usando la constante de ApiConst
         .build();
 
     _hubConnection.onclose(({error}) => print("Conexión perdida"));
