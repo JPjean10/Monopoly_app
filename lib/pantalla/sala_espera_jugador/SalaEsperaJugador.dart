@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text/Text_styles.dart';
-import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
-import 'package:monopoly_app/servicio/jugador_service.dart';
-import 'package:monopoly_app/servicio/SalaEsperaServicio.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/SalaJugador.dart';
-import 'package:monopoly_app/util/consts/ApiConst.dart';
-import 'package:signalr_netcore/hub_connection.dart';
-import 'package:signalr_netcore/hub_connection_builder.dart'; // Para manejar JSON
+import 'package:monopoly_app/controladores/sala_espera_controller.dart';
 
+// ==========================================
+// PANTALLA: SALA ESPERA JUGADOR BANCO
+// ==========================================
 class SalaEsperajugadorBanco extends StatefulWidget {
-  final String nombreUsuario; // Agrega esto
+  final String nombreUsuario;
   const SalaEsperajugadorBanco({super.key, required this.nombreUsuario});
 
   @override
@@ -20,108 +15,41 @@ class SalaEsperajugadorBanco extends StatefulWidget {
 }
 
 class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
-  final JugadorService _jugadorService = JugadorService();
-  final SalaEsperaServicio _salaEsperaServicio = SalaEsperaServicio();
+  late final SalaEsperaController _controller;
   List<dynamic> jugadores = [];
-  late HubConnection _hubConnection;
-  // Cambiado a true para que se vea azul como en tu imagen de referencia
   bool _isIniciarEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    _initSignalR();
-    _cargarJugadores();
+    // Instanciamos el controlador delegando el comportamiento
+    _controller = SalaEsperaController(nombreUsuario: widget.nombreUsuario);
+    _inicializarLogica();
   }
 
-  void _initSignalR() async {
-    // Cambia la IP por la de tu servidor
-    _hubConnection = HubConnectionBuilder()
-        .withUrl(ApiConst.ws) // Usando la constante de ApiConst
-        .build();
-
-    _hubConnection.onclose(({error}) => print("Conexión perdida"));
-
-    // Escuchar el evento que enviamos desde C#
-    _hubConnection.on("actulizar_lista_jugador", (arguments) {
-      _cargarJugadores();
-      _verificarNuevoRol();
-    });
-
-    _hubConnection.on("partida_iniciada", (arguments) async {
-      await _cargarJugadores();
-      _navegarASalaJugador();
-    });
-
-    await _hubConnection.start();
+  void _inicializarLogica() async {
+    await _controller.initSignalR(
+      onListaActualizada: _actualizarPantalla,
+      onPartidaIniciada: () => _controller.navegarASalaJugador(context),
+      onConvertidoEnBanco: () {}, // Ya es banco, no necesita volver a saltar
+    );
+    _actualizarPantalla();
   }
 
-  Future<void> _cargarJugadores() async {
-    final res = await _jugadorService.listarJugadores();
-    if (res['statusCode'] == 200) {
+  void _actualizarPantalla() async {
+    final lista = await _controller.cargarJugadores();
+    if (mounted) {
       setState(() {
-        jugadores = res['data'];
-        // Habilitar botón si hay 2 o más jugadores
+        jugadores = lista;
         _isIniciarEnabled = jugadores.length >= 2;
       });
     }
   }
 
-  void _navegarASalaJugador() {
-    try {
-      var yo = jugadores.firstWhere(
-        (j) => j['nombre'] == widget.nombreUsuario,
-        orElse: () => null,
-      );
-      if (yo != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Salajugador(datosJugador: yo),
-          ),
-        );
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
-  }
-
-  void _verificarNuevoRol() async {
-    final res = await _jugadorService.listarJugadores();
-    if (res['statusCode'] == 200) {
-      List lista = res['data'];
-      // Busco mis datos actuales en la nueva lista
-      var yo = lista.firstWhere(
-        (j) => j['nombre'] == widget.nombreUsuario,
-        orElse: () => null,
-      );
-
-      if (yo != null && yo['esBanco'] == true) {
-        // ¡Ahora soy el Banco! Cambio de pantalla automáticamente
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  SalaEsperajugadorBanco(nombreUsuario: widget.nombreUsuario),
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  void _cancelarRegistro() async {
-    final res = await _jugadorService.listarJugadores();
-
-    var yo = res['data'].firstWhere((j) => j['nombre'] == widget.nombreUsuario);
-
-    await _salaEsperaServicio.eliminarJugador(yo['jugadorId']);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const RegistroJugador()),
-    );
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -133,7 +61,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
           "Monopoly",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF24B9F9), // El azul de tus botones
+        backgroundColor: const Color(0xFF24B9F9),
         elevation: 0,
       ),
       body: Center(
@@ -143,9 +71,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(
-                30,
-              ), // Bordes más redondeados como la imagen
+              borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -155,11 +81,11 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
               ],
             ),
             child: Column(
-              mainAxisSize:
-                  MainAxisSize.min, // El contenedor se ajusta al contenido
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Lista dinámica de jugadores con su monto (basado en tu imagen)
+                const SizedBox(height: 10),
+                // Lista dinámica de jugadores
                 ...jugadores
                     .map(
                       (j) => Padding(
@@ -183,15 +109,15 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
                       ),
                     )
                     .toList(),
-                const SizedBox(height: 25), // Espacio antes de los botones
-                // Fila de botones
+
+                const SizedBox(height: 25),
                 Row(
                   children: [
                     Expanded(
                       child: Button_styles(
                         text: "cancelar",
                         assetIcon: "assets/icon/Close.png",
-                        onPressed: _cancelarRegistro,
+                        onPressed: () => _controller.cancelarRegistro(context),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -200,9 +126,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
                         text: "Iniciar partida",
                         assetIcon: 'assets/icon/Advance.png',
                         isEnabled: _isIniciarEnabled,
-                        onPressed: () async => {
-                          await _hubConnection.invoke("IniciarJuego"),
-                        },
+                        onPressed: () => _controller.iniciarPartida(),
                       ),
                     ),
                   ],
@@ -214,17 +138,13 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _hubConnection.stop();
-    super.dispose();
-  }
 }
 
+// ==========================================
+// PANTALLA: SALA ESPERA JUGADOR COMÚN
+// ==========================================
 class SalaEsperajugador extends StatefulWidget {
   final String nombreUsuario;
-  // Cambia a StatefulWidget para manejar el controlador
   const SalaEsperajugador({super.key, required this.nombreUsuario});
 
   @override
@@ -232,110 +152,51 @@ class SalaEsperajugador extends StatefulWidget {
 }
 
 class _SalaEsperajugadorState extends State<SalaEsperajugador> {
-  late HubConnection _hubConnection;
-  final JugadorService _jugadorService = JugadorService();
-  final SalaEsperaServicio _salaEsperaServicio = SalaEsperaServicio();
+  late final SalaEsperaController _controller;
 
   @override
   void initState() {
     super.initState();
-    _initSignalR(); // <--- IMPORTANTE: Conectar al entrar
+    _controller = SalaEsperaController(nombreUsuario: widget.nombreUsuario);
+    _inicializarLogica();
   }
 
-  void _initSignalR() async {
-    _hubConnection = HubConnectionBuilder()
-        .withUrl("http://192.168.1.100:8080/gameHub")
-        .build();
-
-    // 1. ESCUCHAR CAMBIOS EN LA LISTA (Para detectar si ahora soy Banco)
-    _hubConnection.on("actulizar_lista_jugador", (arguments) async {
-      await _verificarSiSoyNuevoBanco();
-    });
-
-    // ESCUCHAR EL INICIO DE PARTIDA
-    _hubConnection.on("partida_iniciada", (arguments) async {
-      print("Señal de inicio recibida en jugador normal");
-
-      // 1. Obtener la lista actualizada para buscar mis datos
-      _IniciarPartida();
-    });
-
-    await _hubConnection.start();
-  }
-
-  // 3. NUEVA FUNCIÓN PARA CAMBIO DE ROL AUTOMÁTICO
-  Future<void> _verificarSiSoyNuevoBanco() async {
-    final res = await _jugadorService.listarJugadores();
-    if (res['statusCode'] == 200) {
-      List lista = res['data'];
-
-      // Busco mis datos en la lista actualizada
-      var yo = lista.firstWhere(
-        (j) => j['nombre'] == widget.nombreUsuario,
-        orElse: () => null,
-      );
-
-      // Si el servidor dice que ahora soy banco, salto de pantalla
-      if (yo != null && yo['esBanco'] == true) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  SalaEsperajugadorBanco(nombreUsuario: widget.nombreUsuario),
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  Future<void> _IniciarPartida() async {
-    // 1. Obtener la lista actualizada para buscar mis datos
-    final res = await _jugadorService.listarJugadores();
-    if (res['statusCode'] == 200) {
-      List jugadores = res['data'];
-
-      // 2. Buscar mis datos (puedes pasar el nombre por constructor desde el login)
-      var yo = jugadores.firstWhere(
-        (j) => j['nombre'] == widget.nombreUsuario,
-        orElse: () => null,
-      );
-
-      if (yo != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Salajugador(datosJugador: yo),
-          ),
-        );
-      }
-    }
-  }
-
-  void _cancelarRegistro() async {
-    final res = await _jugadorService.listarJugadores();
-
-    var yo = res['data'].firstWhere((j) => j['nombre'] == widget.nombreUsuario);
-
-    await _salaEsperaServicio.eliminarJugador(yo['jugadorId']);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const RegistroJugador()),
+  void _inicializarLogica() async {
+    await _controller.initSignalR(
+      onListaActualizada:
+          () {}, // No renderiza lista en esta pantalla según tu diseño
+      onPartidaIniciada: () => _controller.navegarASalaJugador(context),
+      onConvertidoEnBanco: _cambiarABancoAutomatico,
     );
+  }
+
+  void _cambiarABancoAutomatico() {
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              SalaEsperajugadorBanco(nombreUsuario: widget.nombreUsuario),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Fondo limpio como la imagen
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Monopoly", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.lightBlue,
         elevation: 0,
       ),
-
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -352,18 +213,15 @@ class _SalaEsperajugadorState extends State<SalaEsperajugador> {
                 ),
               ],
             ),
-
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text_styles(text: "Esperando a los jugadores..."),
-
                 const SizedBox(height: 25),
-
                 Button_completo_styles(
                   text: "cancelar",
                   assetIcon: "assets/icon/Close.png",
-                  onPressed: _cancelarRegistro,
+                  onPressed: () => _controller.cancelarRegistro(context),
                 ),
               ],
             ),
@@ -371,11 +229,5 @@ class _SalaEsperajugadorState extends State<SalaEsperajugador> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _hubConnection.stop(); // Limpiar conexión al salir
-    super.dispose();
   }
 }
