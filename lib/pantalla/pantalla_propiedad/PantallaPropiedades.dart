@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_bucador_num_Styles.dart';
-import 'package:monopoly_app/pantalla/pantalla_propiedad/servicio/PropiedadServicio.dart';
-import 'package:signalr_netcore/hub_connection.dart';
-import 'package:signalr_netcore/hub_connection_builder.dart';
+import 'package:monopoly_app/controladores/propiedades_controller.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
-  final int value; // Agregamos el nuevo parámetro
+  final int value;
 
   const PantallaPropiedades({
     super.key,
@@ -20,65 +18,51 @@ class PantallaPropiedades extends StatefulWidget {
 }
 
 class _PantallaPropiedadesState extends State<PantallaPropiedades> {
-  final Propiedadservicio _servicio = Propiedadservicio();
+  final PropiedadesController _controller = PropiedadesController();
   final TextEditingController _searchController = TextEditingController();
-  late HubConnection _hubConnection;
+  final PageController _pageController = PageController();
+
   List<dynamic> _todasLasPropiedades = [];
   List<dynamic> _propiedadesFiltradas = [];
   bool _cargando = true;
-  final PageController _pageController = PageController();
-  int _indiceActual = 0; // Esta variable guardará el índice real
+  int _indiceActual = 0;
 
   @override
   void initState() {
     super.initState();
-    _initSignalR();
-    _obtenerPropiedades();
+    _controller.initSignalR();
+    _cargarPropiedades();
   }
 
-  void _initSignalR() {
-    _hubConnection = HubConnectionBuilder()
-        .withUrl(
-          "http://192.168.1.100:8080/gamehub",
-        ) // Usa la ruta de tu Program.cs
-        .build();
-    _hubConnection.start();
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
-  void _obtenerPropiedades() async {
-    if (widget.value == 1) {
-      // Si venimos de "Subir nivel de renta", filtramos solo las propiedades del jugador
-      final int jugadorId = widget.datosJugador['jugadorId'];
-      final res = await _servicio.listarPropiedad(jugadorId);
-      if (res['statusCode'] == 200) {
-        setState(() {
-          _todasLasPropiedades = res['data'];
-          _propiedadesFiltradas = _todasLasPropiedades;
-          _cargando = false;
-        });
-      }
-    } else {
-      // Si venimos de "propiedad", mostramos todas las propiedades
-      final res = await _servicio.listarPropiedad(0);
-      if (res['statusCode'] == 200) {
-        setState(() {
-          _todasLasPropiedades = res['data'];
-          _propiedadesFiltradas = _todasLasPropiedades;
-          _cargando = false;
-        });
-      }
+  void _cargarPropiedades() async {
+    final int jugadorId = widget.datosJugador['jugadorId'] ?? 0;
+    final propiedades = await _controller.obtenerPropiedades(
+      value: widget.value,
+      jugadorId: jugadorId,
+    );
+
+    if (mounted) {
+      setState(() {
+        _todasLasPropiedades = propiedades;
+        _propiedadesFiltradas = propiedades;
+        _cargando = false;
+      });
     }
   }
 
-  void _filtrarPorId(String query) {
+  void _onSearchChanged(String query) {
     setState(() {
-      if (query.isEmpty) {
-        _propiedadesFiltradas = _todasLasPropiedades;
-      } else {
-        _propiedadesFiltradas = _todasLasPropiedades
-            .where((p) => p['propiedadId'].toString() == query)
-            .toList();
-      }
+      _propiedadesFiltradas = _controller.filtrarPorId(
+        query: query,
+        listaOriginal: _todasLasPropiedades,
+      );
     });
   }
 
@@ -96,7 +80,6 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
         leading: null,
         automaticallyImplyLeading: false,
       ),
-      // --- SOLUCIÓN: Envolver todo el body en un SafeArea ---
       body: SafeArea(
         child: _cargando
             ? const Center(child: CircularProgressIndicator())
@@ -136,7 +119,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                     child: TextField_bucador_num_Styles(
                       hintText: "Escribe el ID de la propiedad...",
                       controller: _searchController,
-                      onChanged: _filtrarPorId,
+                      onChanged: _onSearchChanged,
                       assetIcon: 'assets/icon/search.png',
                     ),
                   ),
@@ -148,13 +131,11 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                             child: Text("No se encontró la propiedad"),
                           )
                         : PageView.builder(
-                            controller:
-                                _pageController, // Asigna el controlador
+                            controller: _pageController,
                             itemCount: _propiedadesFiltradas.length,
                             onPageChanged: (index) {
                               setState(() {
-                                _indiceActual =
-                                    index; // Actualiza el índice cuando cambie la página
+                                _indiceActual = index;
                               });
                             },
                             itemBuilder: (context, index) {
@@ -165,31 +146,24 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                   // Imagen maximizada con SOMBRA
                                   Expanded(
                                     child: Container(
-                                      padding: const EdgeInsets.all(
-                                        20,
-                                      ), // Espacio para que la sombra no se corte
+                                      padding: const EdgeInsets.all(20),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black.withOpacity(
                                                 0.3,
-                                              ), // Color de la sombra
-                                              spreadRadius:
-                                                  2, // Cuánto se extiende
-                                              blurRadius:
-                                                  15, // Qué tan difusa es
-                                              offset: const Offset(
-                                                0,
-                                                8,
-                                              ), // Posición (x, y)
+                                              ),
+                                              spreadRadius: 2,
+                                              blurRadius: 15,
+                                              offset: const Offset(0, 8),
                                             ),
                                           ],
                                         ),
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(
                                             15,
-                                          ), // Opcional: redondea bordes si la imagen tiene
+                                          ),
                                           child: Image.asset(
                                             prop['direccion'],
                                             fit: BoxFit.contain,
@@ -231,7 +205,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                       left: 20.0,
                       right: 20.0,
                       top: 10.0,
-                      bottom: 10.0, // Ajustamos el padding inferior
+                      bottom: 10.0,
                     ),
                     child: Row(
                       children: [
@@ -251,42 +225,15 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                 ? 'assets/icon/dwelling-level-up.png'
                                 : 'assets/icon/home_purchase.png',
                             isEnabled: true,
-                            onPressed: () async {
-                              final propActual =
-                                  _propiedadesFiltradas[_indiceActual];
-
-                              // Extraemos los nombres además de los IDs
-                              final int jugadorId =
-                                  widget.datosJugador['jugadorId'];
-                              final String nombreJugador = widget
-                                  .datosJugador['nombre']; // Nombre del que compra
-                              final int propiedadId = propActual['propiedadId'];
-                              final String nombrePropiedad =
-                                  propActual['nombre']; // Nombre de la avenida
-                              final String mensajeSolicitud =
-                                  "solicita comprar $nombrePropiedad";
-
-                              if (_hubConnection.state ==
-                                  HubConnectionState.Connected) {
-                                // Enviamos 4 argumentos en lugar de 2
-                                await _hubConnection.invoke(
-                                  "EnviarSolicitudCompra",
-                                  args: [
-                                    jugadorId,
-                                    propiedadId,
-                                    nombreJugador,
-                                    mensajeSolicitud,
-                                  ],
+                            onPressed: () {
+                              if (_propiedadesFiltradas.isNotEmpty) {
+                                final propActual =
+                                    _propiedadesFiltradas[_indiceActual];
+                                _controller.solicitarCompraONivel(
+                                  context: context,
+                                  datosJugador: widget.datosJugador,
+                                  propiedadActual: propActual,
                                 );
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Solicitud enviada al banco...",
-                                    ),
-                                  ),
-                                );
-                                Navigator.pop(context);
                               }
                             },
                           ),
@@ -298,12 +245,5 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
               ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    _searchController.dispose();
-    super.dispose();
   }
 }

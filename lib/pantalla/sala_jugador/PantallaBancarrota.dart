@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/servicio/SalaJugadorServicio.dart';
+import 'package:monopoly_app/servicio/SalaJugadorServicio.dart';
 
 class PantallaBancarrota extends StatefulWidget {
   final int jugadorId;
