@@ -3,6 +3,7 @@ import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_pago_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
 
 class Salajugador extends StatefulWidget {
@@ -332,91 +333,46 @@ class _SalajugadorState extends State<Salajugador> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       itemCount: _solicitudesPendientes.length,
       itemBuilder: (context, index) {
         final solicitud = _solicitudesPendientes[index];
-        return Card(
-          elevation: 4,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  solicitud['nombreJugador'] ?? "Jugador",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "${solicitud['mensajeSolicitud']}",
-                  style: const TextStyle(color: Colors.black87, fontSize: 15),
-                ),
-                const SizedBox(height: 15),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Button_styles(
-                        text: "cancelar",
-                        assetIcon: 'assets/icon/Cancel.png',
-                        isEnabled: true,
-                        onPressed: () async {
-                          bool exito = await _controller.rechazarSolicitud(
-                            solicitud: solicitud,
-                          );
+        return ItemPagoCard(
+          solicitud: solicitud,
+          onCancelar: () async {
+            bool exito = await _controller.rechazarSolicitud(
+              solicitud: solicitud,
+            );
 
-                          if (exito && mounted) {
-                            setState(() {
-                              _solicitudesPendientes.removeAt(index);
-                              if (_solicitudesPendientes.isEmpty)
-                                _hayPagosPendientes = false;
-                            });
-                            _controller.cargarHistorial().then((hist) {
-                              if (mounted)
-                                setState(() => _historialTransacciones = hist);
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Button_styles(
-                        text: "aceptar",
-                        assetIcon: 'assets/icon/Done.png',
-                        isEnabled: true,
-                        onPressed: () async {
-                          bool exito = await _controller.aceptarSolicitud(
-                            solicitud: solicitud,
-                          );
+            if (exito && mounted) {
+              setState(() {
+                _solicitudesPendientes.removeAt(index);
+                if (_solicitudesPendientes.isEmpty) {
+                  _hayPagosPendientes = false;
+                }
+              });
+              _controller.cargarHistorial().then((hist) {
+                if (mounted) setState(() => _historialTransacciones = hist);
+              });
+            }
+          },
+          onAceptar: () async {
+            bool exito = await _controller.aceptarSolicitud(
+              solicitud: solicitud,
+            );
 
-                          if (exito && mounted) {
-                            setState(() {
-                              _solicitudesPendientes.removeAt(index);
-                              if (_solicitudesPendientes.isEmpty) {
-                                _hayPagosPendientes = false;
-                              }
-                            });
-                            _controller.cargarHistorial().then((hist) {
-                              if (mounted)
-                                setState(() => _historialTransacciones = hist);
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+            if (exito && mounted) {
+              setState(() {
+                _solicitudesPendientes.removeAt(index);
+                if (_solicitudesPendientes.isEmpty) {
+                  _hayPagosPendientes = false;
+                }
+              });
+              _controller.cargarHistorial().then((hist) {
+                if (mounted) setState(() => _historialTransacciones = hist);
+              });
+            }
+          },
         );
       },
     );
