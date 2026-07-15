@@ -3,6 +3,7 @@ import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_Notificacion_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_pago_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
 
@@ -389,59 +390,10 @@ class _SalajugadorState extends State<Salajugador> {
         if (mounted) setState(() => _historialTransacciones = hist);
       },
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         itemCount: _historialTransacciones.length,
-        itemBuilder: (context, index) {
-          final item = _historialTransacciones[index];
-          String tipoEstado = "${item['tipoCompra']}: ${item['estado']}"
-              .toLowerCase();
-          String propietario = "propietario: ${item['nombreJugador']}"
-              .toLowerCase();
-          String propiedad = "propiedad: ${item['nombrePropiedad']}"
-              .toUpperCase();
-          String mensaje = item['mensage'] ?? "";
-
-          return Card(
-            elevation: 5,
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tipoEstado,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    propietario,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    propiedad,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  if (mensaje.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      "mensaje: $mensaje",
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        },
+        itemBuilder: (context, index) =>
+            ItemNotificacionCard(notificacion: _historialTransacciones[index]),
       ),
     );
   }

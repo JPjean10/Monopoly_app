@@ -124,9 +124,9 @@ class SalaJugadorController {
     String tipoCompra = "desconocido";
 
     if (mensaje.contains("comprar")) {
-      tipoCompra = "comprar";
+      tipoCompra = "COMPRA";
     } else if (mensaje.contains("subir nivel")) {
-      tipoCompra = "subir nivel";
+      tipoCompra = "SUBIR NIVEL";
     }
 
     final res = await salaServicio.InsertHistorial(
