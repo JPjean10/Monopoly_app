@@ -3,6 +3,7 @@ import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_Notificacion_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_pago_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
 
@@ -74,75 +75,46 @@ class _SalajugadorState extends State<Salajugador> {
     }
   }
 
-  void _mostrarOpcionesBanco(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24.0),
-              topRight: Radius.circular(24.0),
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "BANCO",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 24),
-              TextField_styles(
-                hintText: 'nombre',
-                assetIcon: 'assets/icon/search.png',
-                controller: id_o_nombre_text,
-              ),
-              const SizedBox(height: 24),
-              _buildOpcionBanco(
-                context: context,
-                icon: Icons.directions_run_rounded,
-                texto: "cobrar GO",
-                onTap: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 12),
-              _buildOpcionBanco(
-                context: context,
-                icon: Icons.gavel_rounded,
-                texto: "pagar carcel",
-                onTap: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 12),
-              _buildOpcionBanco(
-                context: context,
-                icon: Icons.add_location,
-                texto: "pagar viage",
-                onTap: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 10),
-            ],
+  void _ejecutarAccionBanco({
+    required String accion,
+    required int jugadorId,
+    required String nombreJugador,
+  }) async {
+    switch (accion) {
+      case "GO":
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Ejecutando Cobrar GO para $nombreJugador..."),
           ),
         );
-      },
-    );
+        // Aquí llamas a tu controlador:
+        // await _controller.cobrarGo(jugadorId);
+        break;
+
+      case "CARCEL":
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Ejecutando Pagar Cárcel para $nombreJugador..."),
+          ),
+        );
+        // await _controller.pagarCarcel(jugadorId);
+        break;
+
+      case "VIAJE":
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Ejecutando Pagar Viaje para $nombreJugador..."),
+          ),
+        );
+        // await _controller.pagarViaje(jugadorId);
+        break;
+
+      default:
+        break;
+    }
+
+    // Refrescar los datos actualizados
+    _cargarTodo();
   }
 
   void _onPropiedadTap(Map<String, dynamic> prop) {
@@ -159,6 +131,167 @@ class _SalajugadorState extends State<Salajugador> {
         const SnackBar(content: Text("Error: ID de propiedad no válido")),
       );
     }
+  }
+
+  void _mostrarOpcionesBanco(BuildContext context) {
+    String? accionSeleccionada;
+    List<Map<String, dynamic>> listaJugadores = [];
+    bool cargando = false;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            void seleccionarAccion(String accion) async {
+              setModalState(() {
+                accionSeleccionada = accion;
+                cargando = true;
+              });
+
+              final jugadores = await _controller.obtenerListaJugadores();
+
+              setModalState(() {
+                listaJugadores = jugadores;
+                cargando = false;
+              });
+            }
+
+            return Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      if (accionSeleccionada != null)
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () {
+                            setModalState(() {
+                              accionSeleccionada = null;
+                            });
+                          },
+                        ),
+                      Expanded(
+                        child: Text(
+                          accionSeleccionada == null
+                              ? "Opciones de Banco"
+                              : "Seleccionar Jugador ($accionSeleccionada)",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  if (accionSeleccionada == null) ...[
+                    _buildOpcionBanco(
+                      context: context,
+                      icon: Icons.monetization_on_outlined,
+                      texto: "Cobrar GO",
+                      onTap: () => seleccionarAccion("Cobrar GO"),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildOpcionBanco(
+                      context: context,
+                      icon: Icons.lock_outline,
+                      texto: "Pagar Cárcel",
+                      onTap: () => seleccionarAccion("Pagar Cárcel"),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildOpcionBanco(
+                      context: context,
+                      icon: Icons.flight_takeoff_outlined,
+                      texto: "Pagar Viaje",
+                      onTap: () => seleccionarAccion("Pagar Viaje"),
+                    ),
+                  ] else ...[
+                    if (cargando)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (listaJugadores.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text("No hay jugadores disponibles"),
+                      )
+                    else
+                      SizedBox(
+                        height: 250,
+                        child: ListView.builder(
+                          itemCount: listaJugadores.length,
+                          itemBuilder: (context, index) {
+                            final jugador = listaJugadores[index];
+                            return ListTile(
+                              leading: const Icon(Icons.person),
+                              title: Text(jugador['nombre'] ?? 'Sin nombre'),
+                              trailing: const Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                              ),
+                              onTap: () async {
+                                Navigator.pop(context);
+                                final exito = await _controller
+                                    .ejecutarAccionBanco(
+                                      accion: accionSeleccionada!,
+                                      jugadorDestinoId: jugador['jugadorId'],
+                                    );
+                                if (exito) _cargarTodo();
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildOpcionBanco({
+    required BuildContext context,
+    required IconData icon,
+    required String texto,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.grey[700], size: 22),
+            const SizedBox(width: 16),
+            Text(
+              texto,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+            ),
+            const Spacer(),
+            Icon(Icons.chevron_right, color: Colors.grey[400]),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -329,7 +462,7 @@ class _SalajugadorState extends State<Salajugador> {
 
   Widget _buildPagos() {
     if (_solicitudesPendientes.isEmpty) {
-      return const Center(child: Text("No hay pagos pendientes"));
+      return const Center(child: Text("No solicitudes pendientes"));
     }
 
     return ListView.builder(
@@ -389,95 +522,10 @@ class _SalajugadorState extends State<Salajugador> {
         if (mounted) setState(() => _historialTransacciones = hist);
       },
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         itemCount: _historialTransacciones.length,
-        itemBuilder: (context, index) {
-          final item = _historialTransacciones[index];
-          String tipoEstado = "${item['tipoCompra']}: ${item['estado']}"
-              .toLowerCase();
-          String propietario = "propietario: ${item['nombreJugador']}"
-              .toLowerCase();
-          String propiedad = "propiedad: ${item['nombrePropiedad']}"
-              .toUpperCase();
-          String mensaje = item['mensage'] ?? "";
-
-          return Card(
-            elevation: 5,
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tipoEstado,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    propietario,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    propiedad,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  if (mensaje.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      "mensaje: $mensaje",
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildOpcionBanco({
-    required BuildContext context,
-    required IconData icon,
-    required String texto,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.grey[700], size: 22),
-            const SizedBox(width: 16),
-            Text(
-              texto,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-            ),
-            const Spacer(),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.grey[400],
-              size: 14,
-            ),
-          ],
-        ),
+        itemBuilder: (context, index) =>
+            ItemNotificacionCard(notificacion: _historialTransacciones[index]),
       ),
     );
   }

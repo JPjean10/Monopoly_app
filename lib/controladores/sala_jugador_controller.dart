@@ -3,6 +3,7 @@ import 'package:monopoly_app/pantalla/pantalla_escaneo/PantallaEscaneo.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/PantallaBancarrota.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
 import 'package:monopoly_app/servicio/SalaJugadorServicio.dart';
+import 'package:monopoly_app/servicio/jugador_service.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -124,9 +125,9 @@ class SalaJugadorController {
     String tipoCompra = "desconocido";
 
     if (mensaje.contains("comprar")) {
-      tipoCompra = "comprar";
+      tipoCompra = "COMPRA";
     } else if (mensaje.contains("subir nivel")) {
-      tipoCompra = "subir nivel";
+      tipoCompra = "SUBIR NIVEL";
     }
 
     final res = await salaServicio.InsertHistorial(
@@ -147,7 +148,9 @@ class SalaJugadorController {
       solicitud['propiedadId'],
     );
 
-    return res['statusCode'] == 201 || res['status'] == true;
+    return res['statusCode'] == 201 ||
+        res['statusCode'] == 401 ||
+        res['status'] == true;
   }
 
   // --- VISTAS EMERGENTES ---
@@ -194,5 +197,24 @@ class SalaJugadorController {
         ],
       ),
     );
+  }
+
+  // --- ACCIONES DE BANCO ---
+  Future<bool> ejecutarAccionBanco({
+    required String accion,
+    required int jugadorDestinoId,
+  }) async {
+    // Agrega la llamada a tus endpoints según la acción seleccionada
+    debugPrint("Ejecutando acción '$accion' para jugador $jugadorDestinoId");
+    return true;
+  }
+
+  // --- OBTENER JUGADORES ---
+  Future<List<Map<String, dynamic>>> obtenerListaJugadores() async {
+    final response = await JugadorService().listarJugadores();
+    if (response['statusCode'] == 200 && response['data'] != null) {
+      return List<Map<String, dynamic>>.from(response['data']);
+    }
+    return [];
   }
 }

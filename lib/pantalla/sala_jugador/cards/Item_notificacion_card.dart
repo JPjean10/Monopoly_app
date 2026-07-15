@@ -7,19 +7,25 @@ class ItemNotificacionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String titulo = notificacion['titulo'] ?? 'NOTIFICACIÓN';
-    final String desc =
-        notificacion['descripcion'] ?? notificacion['monto']?.toString() ?? '';
-    final String fecha = notificacion['fecha'] ?? '';
+    // 1. Mapeamos las propiedades reales que vienen en el backend/historial
+    final String tipoEstado =
+        "${notificacion['tipoCompra'] ?? 'Transacción'}: ${notificacion['estado'] ?? ''}"
+            .toLowerCase();
+    final String propietario =
+        "propietario: ${notificacion['nombreJugador'] ?? 'N/A'}".toLowerCase();
+    final String propiedad =
+        "propiedad: ${notificacion['nombrePropiedad'] ?? 'N/A'}".toUpperCase();
+    final String mensaje =
+        notificacion['mensage'] ?? notificacion['mensaje'] ?? '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
+            color: Colors.grey.withOpacity(0.3),
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(3, 3),
@@ -33,31 +39,36 @@ class ItemNotificacionCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.notifications_active, color: Colors.blue),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    titulo.toUpperCase(),
+                    tipoEstado,
                     style: const TextStyle(
-                      fontSize: 20,
-                      letterSpacing: 1.2,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ],
             ),
-            if (desc.isNotEmpty) ...[
-              const SizedBox(height: 15),
-              Text(desc, style: const TextStyle(fontSize: 16)),
-            ],
-            if (fecha.isNotEmpty) ...[
-              const SizedBox(height: 15),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  fecha,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+            const SizedBox(height: 8),
+            Text(
+              propietario,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              propiedad,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            if (mensaje.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                "mensaje: $mensaje",
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             ],
