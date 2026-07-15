@@ -3,6 +3,7 @@ import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
 
 class Salajugador extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -141,6 +142,22 @@ class _SalajugadorState extends State<Salajugador> {
         );
       },
     );
+  }
+
+  void _onPropiedadTap(Map<String, dynamic> prop) {
+    final int propId = prop['propiedadId'] ?? 0;
+    if (propId != 0) {
+      _controller.mostrarQrPropiedad(
+        context,
+        propId,
+        prop['nivelActual'] ?? 1,
+        prop['nombre'] ?? '',
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error: ID de propiedad no válido")),
+      );
+    }
   }
 
   @override
@@ -292,82 +309,17 @@ class _SalajugadorState extends State<Salajugador> {
           ),
         ),
         const SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: _propiedadesJugador.isEmpty
               ? const Center(child: Text("No tienes propiedades aún"))
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   itemCount: _propiedadesJugador.length,
-                  itemBuilder: (context, index) {
-                    final prop = _propiedadesJugador[index];
-                    final int propId = prop['propiedadId'];
-                    final int nivel = prop['nivelActual'];
-                    final String nombreProp = prop['nombre'];
-                    final int renta = prop['renta'];
-
-                    return GestureDetector(
-                      onTap: () {
-                        if (propId != 0) {
-                          _controller.mostrarQrPropiedad(
-                            context,
-                            propId,
-                            nivel,
-                            nombreProp,
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Error: ID de propiedad no válido"),
-                            ),
-                          );
-                        }
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 15),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(3, 3),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                nombreProp.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "NIVEL: $nivel",
-                                    style: const TextStyle(fontSize: 20),
-                                  ),
-                                  Text(
-                                    "RENTA: $renta",
-                                    style: const TextStyle(fontSize: 20),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                  itemBuilder: (context, i) => ItemPropiedadCard(
+                    propiedad: _propiedadesJugador[i],
+                    onTap: () => _onPropiedadTap(_propiedadesJugador[i]),
+                  ),
                 ),
         ),
       ],
@@ -426,11 +378,10 @@ class _SalajugadorState extends State<Salajugador> {
                               if (_solicitudesPendientes.isEmpty)
                                 _hayPagosPendientes = false;
                             });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Solicitud rechazada"),
-                              ),
-                            );
+                            _controller.cargarHistorial().then((hist) {
+                              if (mounted)
+                                setState(() => _historialTransacciones = hist);
+                            });
                           }
                         },
                       ),
