@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/SalaJugador.dart';
-import 'package:monopoly_app/servicio/SalaEsperaServicio.dart';
-import 'package:monopoly_app/servicio/jugador_service.dart';
+import 'package:monopoly_app/servicio/JugadorServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
 class SalaEsperaController {
-  final JugadorService _jugadorService = JugadorService();
-  final SalaEsperaServicio _salaEsperaServicio = SalaEsperaServicio();
+  final JugadorServicio _jugadorServicio = JugadorServicio();
 
   late HubConnection hubConnection;
   final String nombreUsuario;
@@ -42,7 +40,7 @@ class SalaEsperaController {
 
   /// Carga la lista de jugadores desde el servicio
   Future<List<dynamic>> cargarJugadores() async {
-    final res = await _jugadorService.listarJugadores();
+    final res = await _jugadorServicio.listarJugadores();
     if (res['statusCode'] == 200) {
       return res['data'] ?? [];
     }
@@ -52,7 +50,7 @@ class SalaEsperaController {
   /// Cancela el registro del jugador y lo regresa a la pantalla de Registro
   Future<void> cancelarRegistro(BuildContext context) async {
     try {
-      final res = await _jugadorService.listarJugadores();
+      final res = await _jugadorServicio.listarJugadores();
       if (res['statusCode'] == 200) {
         List lista = res['data'];
         var yo = lista.firstWhere(
@@ -61,7 +59,7 @@ class SalaEsperaController {
         );
 
         if (yo != null) {
-          await _salaEsperaServicio.eliminarJugador(yo['jugadorId']);
+          await _jugadorServicio.eliminarJugador(yo['jugadorId']);
         }
       }
     } catch (e) {
@@ -88,7 +86,7 @@ class SalaEsperaController {
 
   /// Redirecciona al jugador a su tablero de juego principal
   Future<void> navegarASalaJugador(BuildContext context) async {
-    final res = await _jugadorService.listarJugadores();
+    final res = await _jugadorServicio.listarJugadores();
     if (res['statusCode'] == 200 && context.mounted) {
       List lista = res['data'];
       var yo = lista.firstWhere(
@@ -108,7 +106,7 @@ class SalaEsperaController {
 
   /// Verifica si el rol actual cambió a Banco para realizar el salto automático
   Future<void> verificarNuevoRol(VoidCallback onConvertidoEnBanco) async {
-    final res = await _jugadorService.listarJugadores();
+    final res = await _jugadorServicio.listarJugadores();
     if (res['statusCode'] == 200) {
       List lista = res['data'];
       var yo = lista.firstWhere(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/servicio/SalaJugadorServicio.dart';
+import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
 
 class PantallaBancarrota extends StatefulWidget {
   final int jugadorId;
@@ -18,7 +18,7 @@ class PantallaBancarrota extends StatefulWidget {
 }
 
 class _PantallaBancarrotaState extends State<PantallaBancarrota> {
-  final Salajugadorservicio _salaServicio = Salajugadorservicio();
+  final PropiJugadorServicio _propiJugadorServicio = PropiJugadorServicio();
 
   // Gestión de estados locales (Sin peticiones al servidor al seleccionar)
   final List<int> _propiedadesSeleccionadasIds = [];
@@ -53,7 +53,7 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
     String idsString = _propiedadesSeleccionadasIds.join(',');
 
     // Enviamos RECIÉN TODO DE GOLPE al presionar el botón del círculo rojo
-    final res = await _salaServicio.enviarVentaMasiva(
+    final res = await _propiJugadorServicio.enviarVentaMasiva(
       widget.jugadorId,
       idsString,
     );

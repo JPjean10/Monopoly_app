@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart';
-import 'package:monopoly_app/servicio/jugador_service.dart';
+import 'package:monopoly_app/servicio/JugadorServicio.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 
 class RegistroController {
-  static final JugadorService _jugadorService = JugadorService();
+  static final JugadorServicio _jugadorServicio = JugadorServicio();
 
   /// Ejecuta el registro de un jugador y realiza la navegación según su rol
   static Future<void> registrarYNavegar({
@@ -20,7 +20,7 @@ class RegistroController {
     }
 
     // 1. Llamamos al servicio
-    final resultado = await _jugadorService.insertarJugador(nombre, context);
+    final resultado = await _jugadorServicio.insertarJugador(nombre, context);
 
     if (resultado['statusCode'] == 201) {
       // Leemos el campo 'esBanco' que el servicio inyectó en el mapa

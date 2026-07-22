@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Para manejar JSON
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/controladores/registro_controller.dart';
-import 'package:monopoly_app/servicio/jugador_service.dart';
-import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart';
-import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:monopoly_app/servicio/JugadorServicio.dart';
 
 class RegistroJugador extends StatefulWidget {
   // Cambia a StatefulWidget para manejar el controlador
@@ -20,7 +17,7 @@ class _RegistroJugadorState extends State<RegistroJugador> {
   final TextEditingController nombre_text = TextEditingController();
   // 1. Variable para controlar si el botón está habilitado
   bool _isButtonEnabled = false;
-  final JugadorService _jugadorService = JugadorService();
+  final JugadorServicio _jugadorServicio = JugadorServicio();
 
   @override
   void initState() {

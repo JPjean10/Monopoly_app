@@ -1,10 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/dio_client/DioClient.dart';
-import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
-class JugadorService {
+class JugadorServicio {
   // Método para obtener la lista de jugadores (usando tu sp_ListarJugadores)
   Future<Map<String, dynamic>> listarJugadores() async {
     try {
@@ -69,6 +68,46 @@ class JugadorService {
     } catch (e) {
       // Cualquier otro error inesperado
       return {'status': false, 'userMssg': 'Error inesperado: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> eliminarJugador(int jugadorId) async {
+    try {
+      final response = await Dioclient.dio.delete(
+        "${ApiConst.controlador_jugador}/$jugadorId", // Esto coincide con [HttpDelete("{jugadorId}")]
+      );
+      return response.data;
+    } on DioException catch (e) {
+      // Si el servidor responde (ej. 401 Unauthorized), devolvemos su JSON real
+      if (e.response != null && e.response?.data != null) {
+        return e.response?.data;
+      }
+      // Error de red o servidor apagado
+      return {'status': false, 'userMssg': 'Error de conexión con el servidor'};
+    } catch (e) {
+      // Cualquier otro error inesperado
+      return {'status': false, 'userMssg': 'Error inesperado: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>?> obtenerDetalleJugador(int jugadorId) async {
+    try {
+      // Usamos el endpoint que definiste en JugadorControlador [source: 7]  'Jugador/buscar/$jugadorId'
+      final response = await Dioclient.dio.get(
+        "${ApiConst.controlador_jugador}${ApiConst.buscarJugador}/$jugadorId",
+      );
+
+      if (response.statusCode == 200) {
+        // Como tu DAO retorna una lista [source: 8], tomamos el primer elemento
+        List<dynamic> lista = response.data['data'];
+        if (lista.isNotEmpty) {
+          return lista[0] as Map<String, dynamic>;
+        }
+      }
+      return null;
+    } catch (e) {
+      print("Error al refrescar jugador: $e");
+      return null;
     }
   }
 }

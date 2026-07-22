@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/pantalla/pantalla_escaneo/PantallaEscaneo.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/PantallaBancarrota.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
-import 'package:monopoly_app/servicio/SalaJugadorServicio.dart';
-import 'package:monopoly_app/servicio/jugador_service.dart';
+import 'package:monopoly_app/servicio/HistorialCompraServicio.dart';
+import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
+import 'package:monopoly_app/servicio/jugadorServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -11,7 +12,10 @@ import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
 class SalaJugadorController {
-  final Salajugadorservicio salaServicio = Salajugadorservicio();
+  final PropiJugadorServicio _propiJugadorServicio = PropiJugadorServicio();
+  final JugadorServicio _jugadorServicio = JugadorServicio();
+  final HistorialCompraServicio _historialCompraServicio =
+      HistorialCompraServicio();
   late HubConnection hubConnection;
 
   // --- SIGNALR ---
@@ -46,7 +50,7 @@ class SalaJugadorController {
     required BuildContext context,
     required int jugadorId,
   }) async {
-    final nuevosDatos = await salaServicio.obtenerDetalleJugador(jugadorId);
+    final nuevosDatos = await _jugadorServicio.obtenerDetalleJugador(jugadorId);
 
     if (nuevosDatos != null) {
       int montoObtenido =
@@ -54,7 +58,7 @@ class SalaJugadorController {
           0;
 
       if (montoObtenido < 0 && context.mounted) {
-        List<dynamic> propiedades = await salaServicio
+        List<dynamic> propiedades = await _propiJugadorServicio
             .obtenerPropiedadesJugador(jugadorId);
 
         final bool? solucionado = await Navigator.push(
@@ -80,11 +84,11 @@ class SalaJugadorController {
   }
 
   Future<List<dynamic>> cargarPropiedades(int jugadorId) async {
-    return await salaServicio.obtenerPropiedadesJugador(jugadorId);
+    return await _propiJugadorServicio.obtenerPropiedadesJugador(jugadorId);
   }
 
   Future<List<dynamic>> cargarHistorial() async {
-    return await salaServicio.obtenerHistorialCompras();
+    return await _historialCompraServicio.obtenerHistorialCompras();
   }
 
   // --- ACCIONES Y BOTONES ---
@@ -107,7 +111,9 @@ class SalaJugadorController {
         nivelActual: int.parse(partes[2]),
       );
 
-      final respuesta = await salaServicio.enviarCobroRenta(datosPropiedad);
+      final respuesta = await _propiJugadorServicio.enviarCobroRenta(
+        datosPropiedad,
+      );
 
       if (context.mounted) {
         MensajeHelper.mostrarResultado(context, respuesta);
@@ -130,7 +136,7 @@ class SalaJugadorController {
       tipoCompra = "SUBIR NIVEL";
     }
 
-    final res = await salaServicio.InsertHistorial(
+    final res = await _historialCompraServicio.InsertHistorial(
       solicitud['jugadorId'],
       solicitud['propiedadId'],
       tipoCompra,
@@ -143,7 +149,7 @@ class SalaJugadorController {
   Future<bool> aceptarSolicitud({
     required Map<String, dynamic> solicitud,
   }) async {
-    final res = await salaServicio.ComprarPropiedad(
+    final res = await _propiJugadorServicio.ComprarPropiedad(
       solicitud['jugadorId'],
       solicitud['propiedadId'],
     );
@@ -211,7 +217,7 @@ class SalaJugadorController {
 
   // --- OBTENER JUGADORES ---
   Future<List<Map<String, dynamic>>> obtenerListaJugadores() async {
-    final response = await JugadorService().listarJugadores();
+    final response = await _jugadorServicio.listarJugadores();
     if (response['statusCode'] == 200 && response['data'] != null) {
       return List<Map<String, dynamic>>.from(response['data']);
     }
