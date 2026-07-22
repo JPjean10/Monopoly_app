@@ -526,45 +526,6 @@ class _SalajugadorState extends State<Salajugador> {
         itemCount: _historialTransacciones.length,
         itemBuilder: (context, index) =>
             ItemNotificacionCard(notificacion: _historialTransacciones[index]),
-<<<<<<< HEAD
-=======
-      ),
-    );
-  }
-
-  Widget _buildOpcionBanco({
-    required BuildContext context,
-    required IconData icon,
-    required String texto,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.grey[700], size: 22),
-            const SizedBox(width: 16),
-            Text(
-              texto,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-            ),
-            const Spacer(),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.grey[400],
-              size: 14,
-            ),
-          ],
-        ),
->>>>>>> d0bf01332ac1748cb49ba67f8634d93b705bb61e
       ),
     );
   }
