@@ -11,5 +11,7 @@ class ApiConst {
 
   // JugadorControlador
   static const String buscarJugador = '/buscar';
-  static const String cobrarRenta = '/CobrarRenta';
+  static const String cobrarRenta = '/cobrar-renta';
+  static const String listarOpcionBanco = '/listar-opcion-banco';
+  static const String venderPropiedades = '/vender-propiedades';
 }

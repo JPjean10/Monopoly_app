@@ -67,7 +67,7 @@ class PropiJugadorServicio {
   ) async {
     try {
       final response = await Dioclient.dio.post(
-        "${ApiConst.controlador_propi_jugador}/VenderPropiedades",
+        "${ApiConst.controlador_propi_jugador}${ApiConst.venderPropiedades}",
         data: {
           'jugadorId': jugadorId,
           'propiedadesIds':

@@ -14,6 +14,8 @@ class MensajeHelper {
     // Lógica de colores según el código de estado
     if (statusCode == 201) {
       colorFondo = Colors.green; // Éxito
+    } else if (statusCode == 200) {
+      colorFondo = Colors.green; // Éxito
     } else if (statusCode == 401) {
       colorFondo = Colors.orange; // Advertencia (Jugador existe)
     } else {

@@ -75,48 +75,6 @@ class _SalajugadorState extends State<Salajugador> {
     }
   }
 
-  void _ejecutarAccionBanco({
-    required String accion,
-    required int jugadorId,
-    required String nombreJugador,
-  }) async {
-    switch (accion) {
-      case "GO":
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Ejecutando Cobrar GO para $nombreJugador..."),
-          ),
-        );
-        // Aquí llamas a tu controlador:
-        // await _controller.cobrarGo(jugadorId);
-        break;
-
-      case "CARCEL":
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Ejecutando Pagar Cárcel para $nombreJugador..."),
-          ),
-        );
-        // await _controller.pagarCarcel(jugadorId);
-        break;
-
-      case "VIAJE":
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Ejecutando Pagar Viaje para $nombreJugador..."),
-          ),
-        );
-        // await _controller.pagarViaje(jugadorId);
-        break;
-
-      default:
-        break;
-    }
-
-    // Refrescar los datos actualizados
-    _cargarTodo();
-  }
-
   void _onPropiedadTap(Map<String, dynamic> prop) {
     final int propId = prop['propiedadId'] ?? 0;
     if (propId != 0) {
@@ -134,9 +92,10 @@ class _SalajugadorState extends State<Salajugador> {
   }
 
   void _mostrarOpcionesBanco(BuildContext context) {
-    String? accionSeleccionada;
+    int? opcionBancoIdSeleccionada;
+    String? nombreOpcionSeleccionada;
     List<Map<String, dynamic>> listaJugadores = [];
-    bool cargando = false;
+    bool cargandoJugadores = false;
 
     showModalBottomSheet(
       context: context,
@@ -146,17 +105,18 @@ class _SalajugadorState extends State<Salajugador> {
       builder: (context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
-            void seleccionarAccion(String accion) async {
+            void seleccionarAccion(int opcionId, String nombreOpcion) async {
               setModalState(() {
-                accionSeleccionada = accion;
-                cargando = true;
+                opcionBancoIdSeleccionada = opcionId;
+                nombreOpcionSeleccionada = nombreOpcion;
+                cargandoJugadores = true;
               });
 
               final jugadores = await _controller.obtenerListaJugadores();
 
               setModalState(() {
                 listaJugadores = jugadores;
-                cargando = false;
+                cargandoJugadores = false;
               });
             }
 
@@ -165,22 +125,24 @@ class _SalajugadorState extends State<Salajugador> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // --- CABECERA CON BOTÓN REGRESAR ---
                   Row(
                     children: [
-                      if (accionSeleccionada != null)
+                      if (opcionBancoIdSeleccionada != null)
                         IconButton(
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () {
                             setModalState(() {
-                              accionSeleccionada = null;
+                              opcionBancoIdSeleccionada = null;
+                              nombreOpcionSeleccionada = null;
                             });
                           },
                         ),
                       Expanded(
                         child: Text(
-                          accionSeleccionada == null
+                          opcionBancoIdSeleccionada == null
                               ? "Opciones de Banco"
-                              : "Seleccionar Jugador ($accionSeleccionada)",
+                              : "Seleccionar Jugador ($nombreOpcionSeleccionada)",
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 18,
@@ -191,29 +153,63 @@ class _SalajugadorState extends State<Salajugador> {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  if (accionSeleccionada == null) ...[
-                    _buildOpcionBanco(
-                      context: context,
-                      icon: Icons.monetization_on_outlined,
-                      texto: "Cobrar GO",
-                      onTap: () => seleccionarAccion("Cobrar GO"),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildOpcionBanco(
-                      context: context,
-                      icon: Icons.lock_outline,
-                      texto: "Pagar Cárcel",
-                      onTap: () => seleccionarAccion("Pagar Cárcel"),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildOpcionBanco(
-                      context: context,
-                      icon: Icons.flight_takeoff_outlined,
-                      texto: "Pagar Viaje",
-                      onTap: () => seleccionarAccion("Pagar Viaje"),
-                    ),
-                  ] else ...[
-                    if (cargando)
+
+                  // --- PASO 1: VISTA DE OPCIONES DE BANCO DINÁMICAS ---
+                  if (opcionBancoIdSeleccionada == null)
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: _controller.obtenerOpcionesBanco(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        if (!snapshot.hasData ||
+                            snapshot.data?['status'] != true) {
+                          return const Center(
+                            child: Text("Error al cargar opciones"),
+                          );
+                        }
+
+                        final List<dynamic> opciones =
+                            snapshot.data!['data'] ?? [];
+
+                        if (opciones.isEmpty) {
+                          return const Center(
+                            child: Text("No hay opciones disponibles"),
+                          );
+                        }
+
+                        return Column(
+                          children: opciones.map((opcion) {
+                            final int opcionId = opcion['opcionBancoId'] ?? 0;
+                            final String nombreOpcion =
+                                opcion['nombre'] ?? opcion['titulo'] ?? '';
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: _buildOpcionBanco(
+                                context: context,
+                                icon: _controller.obtenerIconoOpcion(
+                                  nombreOpcion,
+                                ),
+                                texto: nombreOpcion,
+                                onTap: () =>
+                                    seleccionarAccion(opcionId, nombreOpcion),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    )
+                  // --- PASO 2: VISTA DE SELECCIÓN DE JUGADOR ---
+                  else ...[
+                    if (cargandoJugadores)
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(20.0),
@@ -232,21 +228,33 @@ class _SalajugadorState extends State<Salajugador> {
                           itemCount: listaJugadores.length,
                           itemBuilder: (context, index) {
                             final jugador = listaJugadores[index];
+                            final int jugadorId = jugador['jugadorId'] ?? 0;
+                            final String nombreJugador =
+                                jugador['nombre'] ?? 'Sin nombre';
+
                             return ListTile(
                               leading: const Icon(Icons.person),
-                              title: Text(jugador['nombre'] ?? 'Sin nombre'),
+                              title: Text(nombreJugador),
                               trailing: const Icon(
                                 Icons.arrow_forward_ios,
                                 size: 16,
                               ),
                               onTap: () async {
                                 Navigator.pop(context);
+
                                 final exito = await _controller
                                     .ejecutarAccionBanco(
-                                      accion: accionSeleccionada!,
-                                      jugadorDestinoId: jugador['jugadorId'],
+                                      opcionBancoId: opcionBancoIdSeleccionada!,
+                                      jugadorDestinoId: jugadorId,
+                                      context: context,
                                     );
-                                if (exito) _cargarTodo();
+                                _cargarTodo();
+                                /*                                 _controller.cargarHistorial().then((hist) {
+                                  if (mounted)
+                                    setState(
+                                      () => _historialTransacciones = hist,
+                                    );
+                                }); */
                               },
                             );
                           },

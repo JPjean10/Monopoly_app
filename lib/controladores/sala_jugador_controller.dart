@@ -205,16 +205,6 @@ class SalaJugadorController {
     );
   }
 
-  // --- ACCIONES DE BANCO ---
-  Future<bool> ejecutarAccionBanco({
-    required String accion,
-    required int jugadorDestinoId,
-  }) async {
-    // Agrega la llamada a tus endpoints según la acción seleccionada
-    debugPrint("Ejecutando acción '$accion' para jugador $jugadorDestinoId");
-    return true;
-  }
-
   // --- OBTENER JUGADORES ---
   Future<List<Map<String, dynamic>>> obtenerListaJugadores() async {
     final response = await _jugadorServicio.listarJugadores();
@@ -222,5 +212,50 @@ class SalaJugadorController {
       return List<Map<String, dynamic>>.from(response['data']);
     }
     return [];
+  }
+
+  //..................................
+  // --- ACCIONES DE BANCO ---
+  Future<bool> ejecutarAccionBanco({
+    required int opcionBancoId,
+    required int jugadorDestinoId,
+    required BuildContext context,
+  }) async {
+    try {
+      final response = await _jugadorServicio.ejecutarAccionBanco(
+        opcionBancoId,
+        jugadorDestinoId,
+      );
+      // Petición al backend con IDs correspondientes
+      debugPrint(
+        "Ejecutando opción #$opcionBancoId para jugador $jugadorDestinoId",
+      );
+      // Mostramos el mensaje final usando tu helper
+      if (context.mounted) {
+        MensajeHelper.mostrarResultado(context, response);
+      }
+      // Ejemplo: final response = await _jugadorServicio.ejecutarAccion(opcionBancoId, jugadorDestinoId);
+      return true;
+    } catch (e) {
+      debugPrint("Error en ejecutarAccionBanco: $e");
+      return false;
+    }
+  }
+
+  // --- CARGAR OPCIONES DE BANCO DINÁMICAS ---
+  Future<Map<String, dynamic>> obtenerOpcionesBanco() async {
+    return await _jugadorServicio.listarOpcionBanco();
+  }
+
+  IconData obtenerIconoOpcion(String nombreOpcion) {
+    final nombre = nombreOpcion.toLowerCase();
+    if (nombre.contains('go')) {
+      return Icons.monetization_on_outlined;
+    } else if (nombre.contains('pagar cárcel')) {
+      return Icons.gavel_outlined;
+    } else if (nombre.contains('pagar viaje')) {
+      return Icons.flight_takeoff_outlined;
+    }
+    return Icons.account_balance_wallet_outlined;
   }
 }
