@@ -27,5 +27,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/fondo.png
+    - assets/carta_trampa.png
     - assets/icon/         # Incluye todos los iconos de esa carpeta
     - assets/cartas/       # <--- Esto incluye todos los archivos dentro de 'cartas'

@@ -6,6 +6,7 @@ class ApiConst {
   static const String controlador_propiedad = '/Propiedad';
   static const String controlador_historial_compra = '/HistorialCompra';
   static const String controlador_propi_jugador = '/PropiJugador';
+  static const String controlador_CartaTrampa = '/CartaTrampa';
 
   // endpoints coplementrarios
 

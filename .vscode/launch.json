@@ -2,25 +2,51 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Celular 1 (jean)",
+            "name": "jean",
             "request": "launch",
             "type": "dart",
             "deviceId": "2409BRN2CL"
         },
         {
-            "name": "emulador (jean_emulador)",
+            "name": "Crhisthian",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "SM A075M"
+        },
+        {
+            "name": "jean_emulador",
             "request": "launch",
             "type": "dart",
             "deviceId": "23116PN5BC"
+        },
+        {
+            "name": "android studio",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "emulator-5554"
         }
     ],
     "compounds": [
-        {
-            "name": "jean y jean_emulador",
-            "configurations": [
-                "Celular 1 (jean)",
-                "emulador (jean_emulador)"
-            ]
-        },
+            {
+                "name": "jean y jean_emulador",
+                "configurations": [
+                    "jean",
+                    "jean_emulador"
+                ]
+            },
+            {
+                "name": "jean y android studio",
+                "configurations": [
+                    "jean",
+                    "android studio"
+                ]
+            },
+            {
+                "name": "jean y Crhisthian",
+                "configurations": [
+                    "jean",
+                    "Crhisthian"
+                ]
+            }
     ]
 }

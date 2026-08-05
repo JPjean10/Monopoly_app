@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
+import 'package:monopoly_app/pantalla/pantalla_carta_trampa/PantallaCartaTrampa.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_Notificacion_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_pago_card.dart';
@@ -249,12 +250,6 @@ class _SalajugadorState extends State<Salajugador> {
                                       context: context,
                                     );
                                 _cargarTodo();
-                                /*                                 _controller.cargarHistorial().then((hist) {
-                                  if (mounted)
-                                    setState(
-                                      () => _historialTransacciones = hist,
-                                    );
-                                }); */
                               },
                             );
                           },
@@ -265,6 +260,76 @@ class _SalajugadorState extends State<Salajugador> {
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  void _mostrarOpcionesCartasTrampa(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // TÍTULO
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 15,
+                ),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Color(0xFFD0D0D0), width: 1),
+                  ),
+                ),
+                child: const Text(
+                  "cartas trampa",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+                ),
+              ),
+
+              ListTile(
+                title: const Text(
+                  "Ver inventario",
+                  style: TextStyle(fontSize: 18),
+                ),
+                trailing: const Icon(Icons.inventory_2_outlined),
+                onTap: () {
+                  Navigator.pop(context);
+
+                  // AQUÍ IRÁ LA PANTALLA O MÉTODO
+                  // PARA VER LAS CARTAS GUARDADAS
+                },
+              ),
+
+              // OPCIÓN: CASUALIDAD
+              ListTile(
+                title: const Text("casualidad", style: TextStyle(fontSize: 18)),
+                trailing: Image.asset('assets/icon/cards.png', width: 30),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PantallaCartaTrampa(
+                        jugador_id: _datosJugadorActual?['jugadorId'],
+                        onContinuar: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 5),
+            ],
+          ),
         );
       },
     );
@@ -439,7 +504,7 @@ class _SalajugadorState extends State<Salajugador> {
               const SizedBox(width: 25),
               IconButton(
                 icon: Image.asset('assets/icon/cards.png', width: 30),
-                onPressed: () {},
+                onPressed: () => _mostrarOpcionesCartasTrampa(context),
               ),
               const Spacer(),
               if (esBanco)

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:monopoly_app/modal/CartaTrampaModel.dart';
 import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
 import 'dart:async';
+
+import 'package:monopoly_app/servicio/CartasTrampaServicio.dart';
 
 void main() async {
   // 2. ASEGURA LA INICIALIZACIÓN DE LOS BINDINGS
@@ -21,6 +24,9 @@ void main() async {
   );
 }
 
+// Variable global o singleton si necesitas acceder a las cartas desde cualquier lugar
+List<CartaTrampaModel> listaCartasTrampaGlobal = [];
+
 class PantallaPrincipal extends StatefulWidget {
   const PantallaPrincipal({super.key});
 
@@ -32,14 +38,30 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   @override
   void initState() {
     super.initState();
-    // Cambiamos a la siguiente pantalla después de 5 segundos
-    Timer(const Duration(seconds: 1), () {
+    // En lugar del Timer, llamamos a la función de carga inicial
+    _cargarDatosIniciales();
+  }
+
+  Future<void> _cargarDatosIniciales() async {
+    try {
+      // 1. Instanciamos el servicio y traemos los datos
+      final servicio = CartasTrampaServicio();
+      listaCartasTrampaGlobal = await servicio.listarCartasTrampa();
+
+      print(
+        'Cartas trampa cargadas con éxito: ${listaCartasTrampaGlobal.length}',
+      );
+    } catch (e) {
+      print('Error al cargar datos en el Splash: $e');
+      // Opcional: Manejar error (por ejemplo, reintentar o mostrar alerta)
+    } finally {
+      // 2. Transición a la siguiente pantalla solo cuando la carga finalice
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const RegistroJugador()),
         );
       }
-    });
+    }
   }
 
   @override
