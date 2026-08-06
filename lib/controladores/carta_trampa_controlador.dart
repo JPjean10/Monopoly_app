@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:monopoly_app/modal/CartaTrampaJugadorModel.dart';
 import 'dart:math';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
+import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
+
+List<CartaTrampaJugadorModel> listaCartasTrampaJugador = [];
 
 class CartaTrampaController {
+  final CartasTrampaJugadorServicio _cartasTrampaJugadorServicio =
+      CartasTrampaJugadorServicio();
+
   CartaTrampaModel obtenerCartaAleatoriaPorPeso(
     List<CartaTrampaModel> listaCartas,
   ) {
@@ -25,5 +32,17 @@ class CartaTrampaController {
     }
 
     return listaCartas.first; // Fallback por seguridad
+  }
+
+  Future<void> listarCartasTrampaJugador(int jugadorId) async {
+    try {
+      listaCartasTrampaJugador =
+          await _cartasTrampaJugadorServicio.ListarCartasTrampaJugador(
+            jugadorId,
+          );
+    } catch (e) {
+      listaCartasTrampaJugador = [];
+      print('Error al listar las cartas trampa del jugador: $e');
+    }
   }
 }

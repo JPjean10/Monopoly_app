@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
+import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_carta_trampa/PantallaCartaTrampa.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
@@ -301,10 +302,18 @@ class _SalajugadorState extends State<Salajugador> {
                 ),
                 trailing: const Icon(Icons.inventory_2_outlined),
                 onTap: () {
-                  Navigator.pop(context);
-
-                  // AQUÍ IRÁ LA PANTALLA O MÉTODO
-                  // PARA VER LAS CARTAS GUARDADAS
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PantallaCartaTrampa(
+                        jugador_id: _datosJugadorActual?['jugadorId'],
+                        mostrarInventario: true,
+                        onContinuar: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  );
                 },
               ),
 

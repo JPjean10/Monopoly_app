@@ -25,7 +25,7 @@ void main() async {
 }
 
 // Variable global o singleton si necesitas acceder a las cartas desde cualquier lugar
-List<CartaTrampaModel> listaCartasTrampaGlobal = [];
+List<CartaTrampaModel> listaCartasTrampa = [];
 
 class PantallaPrincipal extends StatefulWidget {
   const PantallaPrincipal({super.key});
@@ -46,11 +46,9 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     try {
       // 1. Instanciamos el servicio y traemos los datos
       final servicio = CartasTrampaServicio();
-      listaCartasTrampaGlobal = await servicio.listarCartasTrampa();
+      listaCartasTrampa = await servicio.listarCartasTrampa();
 
-      print(
-        'Cartas trampa cargadas con éxito: ${listaCartasTrampaGlobal.length}',
-      );
+      print('Cartas trampa cargadas con éxito: ${listaCartasTrampa.length}');
     } catch (e) {
       print('Error al cargar datos en el Splash: $e');
       // Opcional: Manejar error (por ejemplo, reintentar o mostrar alerta)

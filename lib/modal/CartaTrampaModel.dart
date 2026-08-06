@@ -17,12 +17,23 @@ class CartaTrampaModel {
 
   factory CartaTrampaModel.fromJson(Map<String, dynamic> json) {
     return CartaTrampaModel(
-      cartaId: json['carta_id'] as int,
+      cartaId: json['cartaId'] as int,
       titulo: json['titulo'] as String?,
       descripcion: json['descripcion'] as String?,
       monto: json['monto'] as int?,
       codigoAccion: json['codigoAccion'] as String?,
       peso: json['peso'] as int,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cartaId': cartaId,
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'monto': monto,
+      'codigoAccion': codigoAccion,
+      'peso': peso,
+    };
   }
 }
