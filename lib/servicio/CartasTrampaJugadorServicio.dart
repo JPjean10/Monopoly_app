@@ -32,4 +32,24 @@ class CartasTrampaJugadorServicio {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> ProcesarCartaTrampa(
+    int jugadorId,
+    String codigoAccion,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '${ApiConst.baseUrl}${ApiConst.controlador_carta_trampa_jugador}',
+        data: {
+          'jugadorId': jugadorId,
+          'cartaTrampaModel': {'codigoAccion': codigoAccion},
+        },
+      );
+
+      return response.data;
+    } catch (e) {
+      print("Error al usar carta trampa: $e");
+      return {'status': false, 'userMssg': 'Error al usar carta trampa'};
+    }
+  }
 }

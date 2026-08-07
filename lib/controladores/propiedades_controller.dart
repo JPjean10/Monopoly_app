@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/SalaJugador.dart';
 import 'package:monopoly_app/servicio/PropiedadServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:signalr_netcore/hub_connection.dart';
@@ -63,7 +64,7 @@ class PropiedadesController {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Solicitud enviada al banco...")),
         );
-        Navigator.pop(context);
+        Navigator.popUntil(context, (route) => route.isFirst);
       }
     } else {
       if (context.mounted) {

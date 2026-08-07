@@ -3,15 +3,16 @@ import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/main.dart';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
+import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
 
 class PantallaCartaTrampa extends StatefulWidget {
-  final int? jugador_id;
+  final Map<String, dynamic> datosJugador;
   final VoidCallback? onContinuar;
   final bool mostrarInventario;
 
   const PantallaCartaTrampa({
     super.key,
-    this.jugador_id,
+    required this.datosJugador,
     this.onContinuar,
     this.mostrarInventario = false,
   });
@@ -20,16 +21,27 @@ class PantallaCartaTrampa extends StatefulWidget {
   State<PantallaCartaTrampa> createState() => _PantallaCartaTrampaState();
 }
 
-class _PantallaCartaTrampaState extends State<PantallaCartaTrampa> {
+class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
+    with SingleTickerProviderStateMixin {
   final CartaTrampaController _controller = CartaTrampaController();
   final PageController _pageController = PageController(viewportFraction: 0.95);
 
   late List<CartaTrampaModel> _cartasMostradas;
   int _paginaActual = 0;
+  late AnimationController _animController;
+  late Animation<double> _rotation;
+
+  bool _mostrarOpcionesInversion = false;
 
   @override
   void initState() {
     super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _rotation = Tween<double>(begin: 0, end: 1).animate(_animController);
     _inicializarCartas();
   }
 
@@ -64,70 +76,140 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa> {
 
   @override
   void dispose() {
+    _animController.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
+  // Función para revertir el giro y regresar al frente de la carta
+  void _voltearAlFrente() async {
+    await _animController.reverse();
+    setState(() {
+      _mostrarOpcionesInversion = false;
+    });
+  }
+
   Widget _buildCarta(CartaTrampaModel carta) {
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.001)
+        ..rotateY(_rotation.value * 3.1416),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _mostrarOpcionesInversion
+            ? _buildOpcionesInversion()
+            : _buildFrenteCarta(carta),
+      ),
+    );
+  }
+
+  // Sub-widget para mostrar las opciones de inversión con el icono para regresar
+  Widget _buildOpcionesInversion() {
     return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFE0B44B), width: 4),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 18,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
+      key: const ValueKey('opciones'),
+      padding: const EdgeInsets.all(16),
+      decoration: _estiloCarta(),
+      child: Stack(
         children: [
-          const SizedBox(height: 28),
-          Center(
-            child: Image.asset(
-              'assets/carta_trampa.png',
-              width: 220,
-              height: 220,
-            ),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            carta.titulo ?? 'Sin título',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 30,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            width: 90,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1F2937),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              carta.descripcion ?? 'Sin descripción',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF374151),
-                height: 1.6,
+          // Botón de icono en la esquina superior derecha para voltear la carta de vuelta
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              icon: const Icon(
+                Icons.rotate_left_rounded,
+                color: Color(0xFF24B9F9),
+                size: 28,
               ),
+              tooltip: 'Volver a ver la carta',
+              onPressed: _voltearAlFrente,
+            ),
+          ),
+          // Opciones/Botones dentro de la carta
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Button_styles(
+                  text: "Compra propiedad",
+                  assetIcon: 'assets/icon/home_purchase.png',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PantallaPropiedades(
+                          datosJugador: widget.datosJugador!,
+                          value: 0,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                Button_styles(
+                  text: "Subir nivel de renta",
+                  assetIcon: 'assets/icon/dwelling-level-up.png',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PantallaPropiedades(
+                          datosJugador: widget.datosJugador!,
+                          value: 1,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // Sub-widget para el frente de la carta
+  Widget _buildFrenteCarta(CartaTrampaModel carta) {
+    return Container(
+      key: const ValueKey('frente'),
+      padding: const EdgeInsets.all(16),
+      decoration: _estiloCarta(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/carta_trampa.png',
+            height: 120,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            carta.titulo ?? '',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            carta.descripcion ?? '',
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Estilo visual del contenedor principal
+  BoxDecoration _estiloCarta() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: const Color(0xFFE0B44B), width: 4),
+      boxShadow: const [
+        BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+      ],
     );
   }
 
@@ -138,11 +220,16 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa> {
     return Scaffold(
       backgroundColor: const Color(0xFFE5E7EB),
       appBar: AppBar(
+        leading: widget.mostrarInventario
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+        automaticallyImplyLeading: false,
         title: const Text("Monopoly", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF24B9F9),
         elevation: 0,
-        leading: null,
-        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -162,6 +249,9 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa> {
                   height: 500,
                   child: PageView.builder(
                     controller: _pageController,
+                    physics: _mostrarOpcionesInversion
+                        ? const NeverScrollableScrollPhysics() // Bloquea deslizamiento mientras muestra opciones
+                        : const BouncingScrollPhysics(),
                     itemCount: _cartasMostradas.length,
                     onPageChanged: (index) {
                       setState(() {
@@ -176,7 +266,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa> {
                     },
                   ),
                 ),
-                if (tieneVarias) ...[
+                if (tieneVarias && !_mostrarOpcionesInversion) ...[
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -198,18 +288,39 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa> {
                   ),
                 ],
                 const SizedBox(height: 32),
-                Button_styles(
-                  text: "Continuar",
-                  assetIcon: 'assets/icon/Advance.png',
-                  onPressed: () async {
-                    if (widget.jugador_id != null) {
-                      await _controller.listarCartasTrampaJugador(
-                        widget.jugador_id!,
-                      );
-                    }
-                    widget.onContinuar?.call();
-                  },
-                ),
+
+                // Se oculta el botón inferior cuando _mostrarOpcionesInversion es true
+                if (!_mostrarOpcionesInversion)
+                  Button_styles(
+                    text: widget.mostrarInventario ? 'Usar' : 'Continuar',
+                    icon: widget.mostrarInventario
+                        ? Icons.inventory_2_outlined
+                        : null,
+                    assetIcon: widget.mostrarInventario
+                        ? null
+                        : 'assets/icon/Advance.png',
+                    onPressed: () async {
+                      if (!widget.mostrarInventario) {
+                        bool esProcesoNormal = await _controller
+                            .procesarCartaTrampa(
+                              context: context,
+                              jugadorId: widget.datosJugador['jugadorId']!,
+                              codigoAccion: "MANTENIMIENTO_PROPIEDADES",
+                              onInversionExpress: () async {
+                                setState(() {
+                                  _mostrarOpcionesInversion = true;
+                                });
+                                await _animController.forward();
+                              },
+                            );
+                        if (esProcesoNormal) {
+                          widget.onContinuar?.call();
+                        }
+                      } else {
+                        print('Inventario abierto');
+                      }
+                    },
+                  ),
               ],
             ),
           ),

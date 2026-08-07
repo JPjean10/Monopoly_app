@@ -306,7 +306,7 @@ class _SalajugadorState extends State<Salajugador> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => PantallaCartaTrampa(
-                        jugador_id: _datosJugadorActual?['jugadorId'],
+                        datosJugador: _datosJugadorActual!,
                         mostrarInventario: true,
                         onContinuar: () {
                           Navigator.pop(context);
@@ -326,7 +326,7 @@ class _SalajugadorState extends State<Salajugador> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => PantallaCartaTrampa(
-                        jugador_id: _datosJugadorActual?['jugadorId'],
+                        datosJugador: _datosJugadorActual!,
                         onContinuar: () {
                           Navigator.pop(context);
                         },
