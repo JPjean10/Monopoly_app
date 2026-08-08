@@ -417,25 +417,28 @@ class _SalajugadorState extends State<Salajugador> {
             ),
             offset: const Offset(0, 50),
             onSelected: (value) {
+              bool isComprar = value == 1 ? true : false;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PantallaPropiedades(
                     datosJugador: _datosJugadorActual!,
-                    value: value,
+                    isComprar: isComprar,
+                    isSolicitud:
+                        true, // Indica que es una solicitud de subir nivel
                   ),
                 ),
               );
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
-                value: 1,
+                value: 0,
                 child: Row(
                   children: [SizedBox(width: 10), Text("Subir nivel de renta")],
                 ),
               ),
               const PopupMenuItem(
-                value: 0,
+                value: 1,
                 child: Row(children: [SizedBox(width: 10), Text("propiedad")]),
               ),
             ],

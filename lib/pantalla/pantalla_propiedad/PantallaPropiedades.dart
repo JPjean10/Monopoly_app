@@ -5,12 +5,14 @@ import 'package:monopoly_app/controladores/propiedades_controller.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
-  final int value;
+  final bool isComprar;
+  final bool isSolicitud;
 
   const PantallaPropiedades({
     super.key,
     required this.datosJugador,
-    required this.value,
+    required this.isComprar,
+    required this.isSolicitud,
   });
 
   @override
@@ -44,7 +46,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
   void _cargarPropiedades() async {
     final int jugadorId = widget.datosJugador['jugadorId'] ?? 0;
     final propiedades = await _controller.obtenerPropiedades(
-      value: widget.value,
+      isComprar: widget.isComprar,
       jugadorId: jugadorId,
     );
 
@@ -220,20 +222,35 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                         const SizedBox(width: 15),
                         Expanded(
                           child: Button_styles(
-                            text: widget.value == 1 ? "subir nivel" : "comprar",
-                            assetIcon: widget.value == 1
-                                ? 'assets/icon/dwelling-level-up.png'
-                                : 'assets/icon/home_purchase.png',
+                            text: widget.isComprar == true
+                                ? "comprar"
+                                : "subir nivel",
+                            assetIcon: widget.isComprar == true
+                                ? 'assets/icon/home_purchase.png'
+                                : 'assets/icon/dwelling-level-up.png',
                             isEnabled: true,
                             onPressed: () {
                               if (_propiedadesFiltradas.isNotEmpty) {
                                 final propActual =
                                     _propiedadesFiltradas[_indiceActual];
-                                _controller.solicitarCompraONivel(
-                                  context: context,
-                                  datosJugador: widget.datosJugador,
-                                  propiedadActual: propActual,
-                                );
+                                final int propiedadId =
+                                    _propiedadesFiltradas[_indiceActual]['propiedadId'] ??
+                                    0;
+                                final int jugadorId =
+                                    widget.datosJugador['jugadorId'] ?? 0;
+                                if (widget.isSolicitud == true) {
+                                  _controller.solicitarCompraONivel(
+                                    context: context,
+                                    datosJugador: widget.datosJugador,
+                                    propiedadActual: propActual,
+                                  );
+                                } else {
+                                  _controller.comprarPropiedad(
+                                    context: context,
+                                    jugadorId: jugadorId,
+                                    propiedadId: propiedadId,
+                                  );
+                                }
                               }
                             },
                           ),

@@ -4,6 +4,7 @@ import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/main.dart';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/pantalla_subasta/PantallaSubasta.dart';
 
 class PantallaCartaTrampa extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -140,7 +141,9 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                       MaterialPageRoute(
                         builder: (context) => PantallaPropiedades(
                           datosJugador: widget.datosJugador!,
-                          value: 0,
+                          isComprar: true,
+                          isSolicitud:
+                              false, // Indica que es una compra directa
                         ),
                       ),
                     );
@@ -156,8 +159,24 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                       MaterialPageRoute(
                         builder: (context) => PantallaPropiedades(
                           datosJugador: widget.datosJugador!,
-                          value: 1,
+                          isComprar: false,
+                          isSolicitud:
+                              false, // Indica que es una solicitud de subir nivel
                         ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                Button_styles(
+                  text: "Subastar propiedad",
+                  icon: Icons.gavel_outlined,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PantallaSubasta(datosJugador: widget.datosJugador!),
                       ),
                     );
                   },
@@ -305,7 +324,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                             .procesarCartaTrampa(
                               context: context,
                               jugadorId: widget.datosJugador['jugadorId']!,
-                              codigoAccion: "MANTENIMIENTO_PROPIEDADES",
+                              codigoAccion: "INVERSÍON_EXPRESS",
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;
