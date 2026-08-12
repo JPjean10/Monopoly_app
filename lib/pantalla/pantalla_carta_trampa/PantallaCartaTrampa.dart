@@ -175,8 +175,13 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            PantallaSubasta(datosJugador: widget.datosJugador!),
+                        builder: (context) => PantallaPropiedades(
+                          datosJugador: widget.datosJugador!,
+                          isComprar: true,
+                          isSolicitud:
+                              false, // Indica que es una solicitud de subir nivel
+                          isSubasta: true,
+                        ),
                       ),
                     );
                   },
@@ -320,11 +325,13 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                         : 'assets/icon/Advance.png',
                     onPressed: () async {
                       if (!widget.mostrarInventario) {
+                        final cartaActual = _cartasMostradas[_paginaActual];
                         bool esProcesoNormal = await _controller
                             .procesarCartaTrampa(
                               context: context,
                               jugadorId: widget.datosJugador['jugadorId']!,
-                              codigoAccion: "INVERSÍON_EXPRESS",
+                              // codigoAccion: cartaActual.codigoAccion ?? '',
+                              codigoAccion: 'INVERSÍON_EXPRESS',
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;

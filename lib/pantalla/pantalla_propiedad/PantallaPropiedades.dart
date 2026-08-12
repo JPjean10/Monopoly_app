@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/Button_styles.dart';
 import 'package:monopoly_app/componentes/text_field/TextField_bucador_num_Styles.dart';
 import 'package:monopoly_app/controladores/propiedades_controller.dart';
+import 'package:monopoly_app/pantalla/pantalla_subasta/PantallaSubasta.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
   final bool isComprar;
   final bool isSolicitud;
+  final bool? isSubasta;
 
   const PantallaPropiedades({
     super.key,
     required this.datosJugador,
     required this.isComprar,
     required this.isSolicitud,
+    this.isSubasta,
   });
 
   @override
@@ -238,17 +241,32 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     0;
                                 final int jugadorId =
                                     widget.datosJugador['jugadorId'] ?? 0;
+                                final int precio = propActual['precio'] ?? 0;
+
                                 if (widget.isSolicitud == true) {
                                   _controller.solicitarCompraONivel(
                                     context: context,
                                     datosJugador: widget.datosJugador,
                                     propiedadActual: propActual,
                                   );
+                                } else if (widget.isSubasta == true) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PantallaSubasta(
+                                        datosJugador: widget.datosJugador!,
+                                        propieadadId: propiedadId,
+                                        nombrePropiedad:
+                                            _propiedadesFiltradas[_indiceActual]['nombre'],
+                                      ),
+                                    ),
+                                  );
                                 } else {
-                                  _controller.comprarPropiedad(
+                                  _controller.adquirirOMejorarPropiedad(
                                     context: context,
                                     jugadorId: jugadorId,
                                     propiedadId: propiedadId,
+                                    precio: precio,
                                   );
                                 }
                               }

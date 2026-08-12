@@ -56,11 +56,16 @@ class PropiedadesController {
     final int propiedadId = propiedadActual['propiedadId'];
     final String nombrePropiedad = propiedadActual['nombre'] ?? '';
     final String mensajeSolicitud = "solicita comprar $nombrePropiedad";
+    final int precio = propiedadActual['precio'] ?? 0;
+
+    if (hubConnection.state != HubConnectionState.Connected) {
+      await hubConnection.start();
+    }
 
     if (hubConnection.state == HubConnectionState.Connected) {
       await hubConnection.invoke(
         "EnviarSolicitudCompra",
-        args: [jugadorId, propiedadId, nombreJugador, mensajeSolicitud],
+        args: [jugadorId, propiedadId, nombreJugador, precio, mensajeSolicitud],
       );
 
       if (context.mounted) {
@@ -81,14 +86,16 @@ class PropiedadesController {
   }
 
   // --- ACCIONES Y BOTONES ---
-  Future<void> comprarPropiedad({
+  Future<void> adquirirOMejorarPropiedad({
     required BuildContext context,
     required int jugadorId,
     required int propiedadId,
+    required int precio,
   }) async {
-    final res = await _propiJugadorServicio.ComprarPropiedad(
+    final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
       jugadorId,
       propiedadId,
+      precio,
     );
 
     if (res['statusCode'] == 201) {

@@ -16,4 +16,5 @@ class ApiConst {
   static const String cobrarRenta = '/cobrar-renta';
   static const String listarOpcionBanco = '/listar-opcion-banco';
   static const String venderPropiedades = '/vender-propiedades';
+  static const String SubastaPropiedad = '/subasta-propiedad';
 }

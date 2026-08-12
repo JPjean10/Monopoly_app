@@ -4,14 +4,19 @@ import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart'
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class PropiJugadorServicio {
-  Future<Map<String, dynamic>> ComprarPropiedad(
+  Future<Map<String, dynamic>> AdquirirOMejorarPropiedad(
     int jugadorId,
     int propiedadId,
+    int precio,
   ) async {
     try {
       final response = await Dioclient.dio.post(
         ApiConst.controlador_propi_jugador,
-        data: {'jugadorId': jugadorId, 'propiedadId': propiedadId},
+        data: {
+          'jugadorId': jugadorId,
+          'propiedadId': propiedadId,
+          "propiedad": {"precio": precio},
+        },
       );
       return response.data;
     } on DioException catch (e) {

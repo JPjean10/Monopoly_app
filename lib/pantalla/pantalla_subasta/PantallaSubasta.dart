@@ -6,8 +6,15 @@ import 'package:monopoly_app/controladores/subasta_controller.dart';
 
 class PantallaSubasta extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
+  final int propieadadId;
+  final String nombrePropiedad;
 
-  const PantallaSubasta({super.key, required this.datosJugador});
+  const PantallaSubasta({
+    super.key,
+    required this.datosJugador,
+    required this.propieadadId,
+    required this.nombrePropiedad,
+  });
 
   @override
   State<PantallaSubasta> createState() => _PantallaSubastaState();
@@ -113,8 +120,8 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 8),
-              const Text(
-                'AVENIDA INDIA',
+              Text(
+                widget.nombrePropiedad,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -217,12 +224,14 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                     Button_styles(
                       text: 'SUBASTAR',
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Subasta iniciada con ${_formatearCantidad(_ofertaActual)}',
-                            ),
-                          ),
+                        final jugadorId =
+                            _jugadores[_jugadorSeleccionado]['jugadorId'];
+
+                        _controller.adquirirOMejorarPropiedad(
+                          context: context,
+                          jugadorId: jugadorId,
+                          propiedadId: widget.propieadadId,
+                          precio: _ofertaActual,
                         );
                       },
                     ),
