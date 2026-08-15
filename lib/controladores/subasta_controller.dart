@@ -16,13 +16,13 @@ class SubastaController {
   }
 
   // --- ACCIONES Y BOTONES ---
-  Future<void> adquirirOMejorarPropiedad({
+  Future<void> ProcesarSubasta({
     required BuildContext context,
     required int jugadorId,
     required int propiedadId,
     required int precio,
   }) async {
-    final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
+    final res = await _propiJugadorServicio.ProcesarSubasta(
       jugadorId,
       propiedadId,
       precio,

@@ -227,7 +227,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                         final jugadorId =
                             _jugadores[_jugadorSeleccionado]['jugadorId'];
 
-                        _controller.adquirirOMejorarPropiedad(
+                        _controller.ProcesarSubasta(
                           context: context,
                           jugadorId: jugadorId,
                           propiedadId: widget.propieadadId,

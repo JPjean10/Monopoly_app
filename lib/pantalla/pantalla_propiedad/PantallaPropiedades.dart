@@ -266,7 +266,6 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     context: context,
                                     jugadorId: jugadorId,
                                     propiedadId: propiedadId,
-                                    precio: precio,
                                   );
                                 }
                               }

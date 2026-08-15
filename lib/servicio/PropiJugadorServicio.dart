@@ -7,16 +7,11 @@ class PropiJugadorServicio {
   Future<Map<String, dynamic>> AdquirirOMejorarPropiedad(
     int jugadorId,
     int propiedadId,
-    int precio,
   ) async {
     try {
       final response = await Dioclient.dio.post(
         ApiConst.controlador_propi_jugador,
-        data: {
-          'jugadorId': jugadorId,
-          'propiedadId': propiedadId,
-          "propiedad": {"precio": precio},
-        },
+        data: {'jugadorId': jugadorId, 'propiedadId': propiedadId},
       );
       return response.data;
     } on DioException catch (e) {
@@ -86,6 +81,34 @@ class PropiJugadorServicio {
       return {'statusCode': 500, 'userMssg': 'Error de red en la transacción'};
     } catch (e) {
       return {'statusCode': 500, 'userMssg': 'Error inesperado: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> ProcesarSubasta(
+    int jugadorId,
+    int propiedadId,
+    int precio,
+  ) async {
+    try {
+      final response = await Dioclient.dio.post(
+        "${ApiConst.controlador_propi_jugador}${ApiConst.SubastaPropiedad}",
+        data: {
+          'jugadorId': jugadorId,
+          'propiedadId': propiedadId,
+          "propiedad": {"precio": precio},
+        },
+      );
+      return response.data;
+    } on DioException catch (e) {
+      // Si el servidor responde (ej. 401 Unauthorized), devolvemos su JSON real
+      if (e.response != null && e.response?.data != null) {
+        return e.response?.data;
+      }
+      // Error de red o servidor apagado
+      return {'status': false, 'userMssg': 'Error de conexión con el servidor'};
+    } catch (e) {
+      // Cualquier otro error inesperado
+      return {'status': false, 'userMssg': 'Error inesperado: $e'};
     }
   }
 }

@@ -33,8 +33,7 @@ class SalaJugadorController {
           'jugadorId': arguments[0] as int,
           'propiedadId': arguments[1] as int,
           'nombreJugador': arguments[2] as String,
-          'precio': arguments[3] as int,
-          'mensajeSolicitud': arguments[4] as String,
+          'mensajeSolicitud': arguments[3] as String,
         });
       }
     });
@@ -153,10 +152,7 @@ class SalaJugadorController {
     final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
       solicitud['jugadorId'],
       solicitud['propiedadId'],
-      solicitud['precio'],
     );
-
-    debugPrint("Respuesta: $res");
 
     return res['statusCode'] == 201 ||
         res['statusCode'] == 401 ||

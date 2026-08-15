@@ -57,7 +57,7 @@ class CartaTrampaController {
   }) async {
     try {
       // Si la carta es "INVERSÍON_EXPRESS", ignoramos el backend y activamos la lógica de UI
-      if (codigoAccion == "INVERSÍON_EXPRESS") {
+      if (codigoAccion == "INVERSION_EXPRESS") {
         onInversionExpress();
         return false; // Indica que se debe manejar la interfaz especial
       }

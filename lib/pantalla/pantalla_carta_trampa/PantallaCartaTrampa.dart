@@ -331,7 +331,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                               context: context,
                               jugadorId: widget.datosJugador['jugadorId']!,
                               // codigoAccion: cartaActual.codigoAccion ?? '',
-                              codigoAccion: 'INVERSÍON_EXPRESS',
+                              codigoAccion: 'INVERSION_EXPRESS',
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;
