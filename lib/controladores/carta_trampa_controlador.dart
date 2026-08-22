@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
 import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<CartaTrampaJugadorModel> listaCartasTrampaJugador = [];
 
@@ -95,16 +96,21 @@ class CartaTrampaController {
     try {
       // Si la carta es "INVERSÍON_EXPRESS", ignoramos el backend y activamos la lógica de UI
       if (codigoAccion == "DESCUENTO_MEJORA") {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('cartaJugadorId', cartaJugadorId);
+        await prefs.setInt('jugadorId', jugadorId);
+        await prefs.setString('codigoAccion', codigoAccion);
         onInversionExpress();
         return false; // Indica que se debe manejar la interfaz especial
       }
 
       // --- Si no es Inversión Express, procesa normalmente con el backend ---
-      /* 
-      final resultado = await _cartasTrampaJugadorServicio.ProcesarCartaTrampa(
-        jugadorId,
-        codigoAccion,
-      );
+      final resultado =
+          await _cartasTrampaJugadorServicio.ProcesarCartaInventarioJugador(
+            cartaJugadorId,
+            jugadorId,
+            codigoAccion,
+          );
 
       final String? mensaje = resultado['userMssg'] as String?;
       if (mensaje != null && mensaje.trim().isNotEmpty) {
@@ -114,7 +120,7 @@ class CartaTrampaController {
       if (resultado['statusCode'] == 201) {
         listarCartasTrampaJugador(jugadorId);
       }
-*/
+
       return true; // Ejecución normal terminada
     } catch (e) {
       print('Error al procesar la carta trampa: $e');

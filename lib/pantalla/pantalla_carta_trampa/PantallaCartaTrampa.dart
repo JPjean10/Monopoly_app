@@ -337,8 +337,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                             .procesarCartaTrampa(
                               context: context,
                               jugadorId: widget.datosJugador['jugadorId']!,
-                              // codigoAccion: cartaActual.codigoAccion ?? '',
-                              codigoAccion: 'DESCUENTO_MEJORA',
+                              codigoAccion: cartaActual.codigoAccion ?? '',
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;
@@ -354,13 +353,31 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                         final cartaJugadorActual =
                             listaCartasTrampaJugador[_paginaActual];
 
+                        if (listaCartasTrampaJugador.isEmpty) {
+                          debugPrint(
+                            "Error: Intentaste procesar una carta, pero la lista de cartas del jugador está vacía.",
+                          );
+                          return; // Detiene la ejecución de forma segura
+                        }
+
+                        if (_paginaActual < 0 ||
+                            _paginaActual >= listaCartasTrampaJugador.length) {
+                          debugPrint(
+                            "Error: El índice _paginaActual ($_paginaActual) está fuera de rango para la lista de longitud ${listaCartasTrampaJugador.length}.",
+                          );
+                          return; // Detiene la ejecución
+                        }
+
                         bool esProcesoNormal = await _controller
                             .procesarCartaTrampaJugador(
                               context: context,
                               cartaJugadorId: cartaJugadorActual.cartaJugadorId,
                               jugadorId: widget.datosJugador['jugadorId']!,
-                              // codigoAccion: cartaActual.codigoAccion ?? '',
-                              codigoAccion: 'DESCUENTO_MEJORA',
+                              codigoAccion:
+                                  cartaJugadorActual
+                                      .cartaTrampaModel
+                                      .codigoAccion ??
+                                  '',
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;
@@ -368,6 +385,10 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                                 await _animController.forward();
                               },
                             );
+
+                        if (esProcesoNormal) {
+                          widget.onContinuar?.call();
+                        }
                       }
                     },
                   ),

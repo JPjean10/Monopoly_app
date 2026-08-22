@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/pantalla/pantalla_escaneo/PantallaEscaneo.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/PantallaBancarrota.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
+import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
 import 'package:monopoly_app/servicio/HistorialCompraServicio.dart';
 import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
 import 'package:monopoly_app/servicio/jugadorServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
@@ -16,6 +19,8 @@ class SalaJugadorController {
   final JugadorServicio _jugadorServicio = JugadorServicio();
   final HistorialCompraServicio _historialCompraServicio =
       HistorialCompraServicio();
+  final CartasTrampaJugadorServicio _cartasTrampaJugadorServicio =
+      CartasTrampaJugadorServicio();
   late HubConnection hubConnection;
 
   // --- SIGNALR ---
@@ -156,9 +161,63 @@ class SalaJugadorController {
       solicitud['descuento'],
     );
 
-    return res['statusCode'] == 201 ||
+    final bool exitoOperacion =
+        res['statusCode'] == 201 ||
         res['statusCode'] == 401 ||
         res['status'] == true;
+
+    if (exitoOperacion && res['statusCode'] == 201) {
+      // 2. Procesamiento de carta como tarea secundaria (no bloqueante para la UI)
+      _procesarCartaTrampaPendiente();
+    }
+
+    return exitoOperacion;
+  }
+
+  // Método auxiliar para manejar el proceso de carta de fondo
+  Future<void> _procesarCartaTrampaPendiente() async {
+    // 1. Intentar recuperar de SharedPreferences si no vienen en los parámetros
+    final prefs = await SharedPreferences.getInstance();
+
+    final int cId = prefs.getInt('cartaJugadorId') ?? 0;
+    final int jId = prefs.getInt('jugadorId') ?? 0;
+    final String action = prefs.getString('codigoAccion') ?? "";
+
+    debugPrint("cartaJugadorId: $cId jugadorId: $jId codigoAccion: $action");
+
+    // Validar que tengamos datos para procesar
+    if (cId == 0 || jId == 0 || action.isEmpty) {
+      debugPrint(
+        "Error: No se pudieron obtener los datos de la carta o jugador.",
+      );
+    }
+
+    // 2. Procesar con los datos recuperados o recibidos
+    final resultado =
+        await _cartasTrampaJugadorServicio.ProcesarCartaInventarioJugador(
+          cId,
+          jId,
+          action,
+        );
+
+    listarCartasTrampaJugador(jId);
+
+    // Limpiar o actualizar el storage según sea necesario
+    await prefs.remove('cartaJugadorId');
+    await prefs.remove('jugadorId');
+    await prefs.remove('codigoAccion');
+  }
+
+  Future<void> listarCartasTrampaJugador(int jugadorId) async {
+    try {
+      listaCartasTrampaJugador =
+          await _cartasTrampaJugadorServicio.ListarCartasTrampaJugador(
+            jugadorId,
+          );
+    } catch (e) {
+      listaCartasTrampaJugador = [];
+      print('Error al listar las cartas trampa del jugador: $e');
+    }
   }
 
   // --- VISTAS EMERGENTES ---
