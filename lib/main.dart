@@ -38,22 +38,24 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   @override
   void initState() {
     super.initState();
-    // En lugar del Timer, llamamos a la función de carga inicial
-    _cargarDatosIniciales();
+    // Envuelve la carga en un callback para asegurar que el contexto exista
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cargarDatosIniciales();
+    });
   }
 
   Future<void> _cargarDatosIniciales() async {
     try {
-      // 1. Instanciamos el servicio y traemos los datos
       final servicio = CartasTrampaServicio();
-      listaCartasTrampa = await servicio.listarCartasTrampa();
-
-      print('Cartas trampa cargadas con éxito: ${listaCartasTrampa.length}');
+      // Añade un timeout por si el servicio del servidor no responde
+      listaCartasTrampa = await servicio.listarCartasTrampa().timeout(
+        const Duration(seconds: 20),
+        onTimeout: () => throw Exception("Tiempo de espera agotado"),
+      );
     } catch (e) {
-      print('Error al cargar datos en el Splash: $e');
-      // Opcional: Manejar error (por ejemplo, reintentar o mostrar alerta)
+      print('Error al cargar datos: $e');
+      // Si falla, podrías mostrar un SnackBar o dejarlo así para que el usuario vea el error
     } finally {
-      // 2. Transición a la siguiente pantalla solo cuando la carga finalice
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const RegistroJugador()),

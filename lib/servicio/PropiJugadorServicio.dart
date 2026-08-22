@@ -7,11 +7,16 @@ class PropiJugadorServicio {
   Future<Map<String, dynamic>> AdquirirOMejorarPropiedad(
     int jugadorId,
     int propiedadId,
+    int descuento,
   ) async {
     try {
       final response = await Dioclient.dio.post(
         ApiConst.controlador_propi_jugador,
-        data: {'jugadorId': jugadorId, 'propiedadId': propiedadId},
+        data: {
+          'jugadorId': jugadorId,
+          'propiedadId': propiedadId,
+          "propiedad": {"precio_descuento": descuento},
+        },
       );
       return response.data;
     } on DioException catch (e) {

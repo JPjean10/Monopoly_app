@@ -22,9 +22,10 @@ class PropiedadesController {
   Future<List<dynamic>> obtenerPropiedades({
     required bool isComprar,
     required int jugadorId,
+    required int descuento,
   }) async {
     final int idConsulta = (isComprar == true) ? 0 : jugadorId;
-    final res = await _servicio.listarPropiedad(idConsulta);
+    final res = await _servicio.listarPropiedad(idConsulta, descuento);
 
     if (res['statusCode'] == 200 && res['data'] != null) {
       return res['data'];
@@ -50,12 +51,14 @@ class PropiedadesController {
     required BuildContext context,
     required Map<String, dynamic> datosJugador,
     required Map<String, dynamic> propiedadActual,
+    required int descuento,
   }) async {
     final int jugadorId = datosJugador['jugadorId'];
     final String nombreJugador = datosJugador['nombre'] ?? '';
     final int propiedadId = propiedadActual['propiedadId'];
     final String nombrePropiedad = propiedadActual['nombre'] ?? '';
     final String mensajeSolicitud = "solicita comprar $nombrePropiedad";
+
     if (hubConnection.state != HubConnectionState.Connected) {
       await hubConnection.start();
     }
@@ -63,7 +66,13 @@ class PropiedadesController {
     if (hubConnection.state == HubConnectionState.Connected) {
       await hubConnection.invoke(
         "EnviarSolicitudCompra",
-        args: [jugadorId, propiedadId, nombreJugador, mensajeSolicitud],
+        args: [
+          jugadorId,
+          propiedadId,
+          nombreJugador,
+          mensajeSolicitud,
+          descuento,
+        ],
       );
 
       if (context.mounted) {
@@ -88,10 +97,12 @@ class PropiedadesController {
     required BuildContext context,
     required int jugadorId,
     required int propiedadId,
+    required int descuento,
   }) async {
     final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
       jugadorId,
       propiedadId,
+      descuento,
     );
 
     if (res['statusCode'] == 201) {

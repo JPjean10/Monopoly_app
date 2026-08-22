@@ -99,14 +99,16 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _mostrarOpcionesInversion
-            ? _buildOpcionesInversion()
+            ? _buildOpcionesInversion(carta)
             : _buildFrenteCarta(carta),
       ),
     );
   }
 
   // Sub-widget para mostrar las opciones de inversión con el icono para regresar
-  Widget _buildOpcionesInversion() {
+  Widget _buildOpcionesInversion(CartaTrampaModel carta) {
+    final esDescuentoMejora = carta.codigoAccion == 'DESCUENTO_MEJORA';
+    final montoDescuento = carta.monto ?? 0;
     return Container(
       key: const ValueKey('opciones'),
       padding: const EdgeInsets.all(16),
@@ -141,9 +143,10 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                       MaterialPageRoute(
                         builder: (context) => PantallaPropiedades(
                           datosJugador: widget.datosJugador!,
+                          descuento: esDescuentoMejora ? montoDescuento : 0,
                           isComprar: true,
                           isSolicitud:
-                              false, // Indica que es una compra directa
+                              esDescuentoMejora, // Indica que es una compra directa
                         ),
                       ),
                     );
@@ -159,33 +162,36 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                       MaterialPageRoute(
                         builder: (context) => PantallaPropiedades(
                           datosJugador: widget.datosJugador!,
+                          descuento: esDescuentoMejora ? montoDescuento : 0,
                           isComprar: false,
                           isSolicitud:
-                              false, // Indica que es una solicitud de subir nivel
+                              esDescuentoMejora, // Indica que es una solicitud de subir nivel
                         ),
                       ),
                     );
                   },
                 ),
                 const SizedBox(height: 12),
-                Button_styles(
-                  text: "Subastar propiedad",
-                  icon: Icons.gavel_outlined,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PantallaPropiedades(
-                          datosJugador: widget.datosJugador!,
-                          isComprar: true,
-                          isSolicitud:
-                              false, // Indica que es una solicitud de subir nivel
-                          isSubasta: true,
+                if (!esDescuentoMejora)
+                  Button_styles(
+                    text: "Subastar propiedad",
+                    icon: Icons.gavel_outlined,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PantallaPropiedades(
+                            datosJugador: widget.datosJugador!,
+                            descuento: esDescuentoMejora ? montoDescuento : 0,
+                            isComprar: true,
+                            isSolicitud:
+                                false, // Indica que es una solicitud de subir nivel
+                            isSubasta: true,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -326,12 +332,13 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                     onPressed: () async {
                       if (!widget.mostrarInventario) {
                         final cartaActual = _cartasMostradas[_paginaActual];
+
                         bool esProcesoNormal = await _controller
                             .procesarCartaTrampa(
                               context: context,
                               jugadorId: widget.datosJugador['jugadorId']!,
                               // codigoAccion: cartaActual.codigoAccion ?? '',
-                              codigoAccion: 'INVERSION_EXPRESS',
+                              codigoAccion: 'DESCUENTO_MEJORA',
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;
@@ -339,11 +346,28 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                                 await _animController.forward();
                               },
                             );
+
                         if (esProcesoNormal) {
                           widget.onContinuar?.call();
                         }
                       } else {
-                        print('Inventario abierto');
+                        final cartaJugadorActual =
+                            listaCartasTrampaJugador[_paginaActual];
+
+                        bool esProcesoNormal = await _controller
+                            .procesarCartaTrampaJugador(
+                              context: context,
+                              cartaJugadorId: cartaJugadorActual.cartaJugadorId,
+                              jugadorId: widget.datosJugador['jugadorId']!,
+                              // codigoAccion: cartaActual.codigoAccion ?? '',
+                              codigoAccion: 'DESCUENTO_MEJORA',
+                              onInversionExpress: () async {
+                                setState(() {
+                                  _mostrarOpcionesInversion = true;
+                                });
+                                await _animController.forward();
+                              },
+                            );
                       }
                     },
                   ),

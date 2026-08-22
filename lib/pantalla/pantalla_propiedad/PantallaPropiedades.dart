@@ -6,6 +6,7 @@ import 'package:monopoly_app/pantalla/pantalla_subasta/PantallaSubasta.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
+  final int descuento;
   final bool isComprar;
   final bool isSolicitud;
   final bool? isSubasta;
@@ -13,6 +14,7 @@ class PantallaPropiedades extends StatefulWidget {
   const PantallaPropiedades({
     super.key,
     required this.datosJugador,
+    required this.descuento,
     required this.isComprar,
     required this.isSolicitud,
     this.isSubasta,
@@ -48,9 +50,11 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
 
   void _cargarPropiedades() async {
     final int jugadorId = widget.datosJugador['jugadorId'] ?? 0;
+    final int descuento = widget.descuento;
     final propiedades = await _controller.obtenerPropiedades(
       isComprar: widget.isComprar,
       jugadorId: jugadorId,
+      descuento: descuento,
     );
 
     if (mounted) {
@@ -189,14 +193,39 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                       color: Colors.blue.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: Text(
-                                      "VALOR: S/ ${prop['precio']}",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
+                                    child: widget.descuento > 0
+                                        ? Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "S/ ${prop['precio']}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey,
+                                                  decoration: TextDecoration
+                                                      .lineThrough,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                "VALOR: S/ ${prop['precio_descuento']}",
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Text(
+                                            "VALOR: S/ ${prop['precio']}",
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
                                   ),
                                 ],
                               );
@@ -248,6 +277,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     context: context,
                                     datosJugador: widget.datosJugador,
                                     propiedadActual: propActual,
+                                    descuento: widget.descuento,
                                   );
                                 } else if (widget.isSubasta == true) {
                                   Navigator.push(
@@ -266,6 +296,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     context: context,
                                     jugadorId: jugadorId,
                                     propiedadId: propiedadId,
+                                    descuento: widget.descuento,
                                   );
                                 }
                               }

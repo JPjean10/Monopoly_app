@@ -423,6 +423,7 @@ class _SalajugadorState extends State<Salajugador> {
                 MaterialPageRoute(
                   builder: (context) => PantallaPropiedades(
                     datosJugador: _datosJugadorActual!,
+                    descuento: 0,
                     isComprar: isComprar,
                     isSolicitud:
                         true, // Indica que es una solicitud de subir nivel

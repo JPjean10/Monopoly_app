@@ -34,6 +34,7 @@ class SalaJugadorController {
           'propiedadId': arguments[1] as int,
           'nombreJugador': arguments[2] as String,
           'mensajeSolicitud': arguments[3] as String,
+          'descuento': arguments[4] as int,
         });
       }
     });
@@ -152,6 +153,7 @@ class SalaJugadorController {
     final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
       solicitud['jugadorId'],
       solicitud['propiedadId'],
+      solicitud['descuento'],
     );
 
     return res['statusCode'] == 201 ||

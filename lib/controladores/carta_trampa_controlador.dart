@@ -83,4 +83,42 @@ class CartaTrampaController {
       return false;
     }
   }
+
+  Future<bool> procesarCartaTrampaJugador({
+    required BuildContext context,
+    required int cartaJugadorId,
+    required int jugadorId,
+    required String codigoAccion,
+    required Function()
+    onInversionExpress, // Callback para activar animación y botones en la UI
+  }) async {
+    try {
+      // Si la carta es "INVERSÍON_EXPRESS", ignoramos el backend y activamos la lógica de UI
+      if (codigoAccion == "DESCUENTO_MEJORA") {
+        onInversionExpress();
+        return false; // Indica que se debe manejar la interfaz especial
+      }
+
+      // --- Si no es Inversión Express, procesa normalmente con el backend ---
+      /* 
+      final resultado = await _cartasTrampaJugadorServicio.ProcesarCartaTrampa(
+        jugadorId,
+        codigoAccion,
+      );
+
+      final String? mensaje = resultado['userMssg'] as String?;
+      if (mensaje != null && mensaje.trim().isNotEmpty) {
+        MensajeHelper.mostrarResultado(context, resultado);
+      }
+
+      if (resultado['statusCode'] == 201) {
+        listarCartasTrampaJugador(jugadorId);
+      }
+*/
+      return true; // Ejecución normal terminada
+    } catch (e) {
+      print('Error al procesar la carta trampa: $e');
+      return false;
+    }
+  }
 }
