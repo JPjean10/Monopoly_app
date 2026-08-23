@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:monopoly_app/dio_client/DioClient.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
@@ -44,7 +45,7 @@ class PropiJugadorServicio {
       }
       return [];
     } catch (e) {
-      print("Error al obtener propiedades: $e");
+      debugPrint("Error al obtener propiedades: $e");
       return [];
     }
   }
@@ -61,7 +62,7 @@ class PropiJugadorServicio {
 
       return response.data;
     } catch (e) {
-      print("Error al cobrar renta: $e");
+      debugPrint("Error al cobrar renta: $e");
       return {'status': false, 'userMssg': 'Error al cobrar renta'};
     }
   }

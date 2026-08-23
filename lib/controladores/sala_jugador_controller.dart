@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
-import 'package:monopoly_app/pantalla/pantalla_escaneo/PantallaEscaneo.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/PantallaBancarrota.dart';
+import 'package:monopoly_app/pantalla/pantalla_escaneo/pantalla_escaneo.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/pantalla_bancarrota.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
 import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
 import 'package:monopoly_app/servicio/HistorialCompraServicio.dart';
 import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
 import 'package:monopoly_app/servicio/jugadorServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
-import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signalr_netcore/hub_connection.dart';
@@ -58,6 +58,8 @@ class SalaJugadorController {
   }) async {
     final nuevosDatos = await _jugadorServicio.obtenerDetalleJugador(jugadorId);
 
+    if (!context.mounted) return nuevosDatos;
+
     if (nuevosDatos != null) {
       int montoObtenido =
           int.tryParse(nuevosDatos['tarjeta']?['monto']?.toString() ?? '0') ??
@@ -66,6 +68,9 @@ class SalaJugadorController {
       if (montoObtenido < 0 && context.mounted) {
         List<dynamic> propiedades = await _propiJugadorServicio
             .obtenerPropiedadesJugador(jugadorId);
+
+        // Verificamos de nuevo antes de usar el Navigator
+        if (!context.mounted) return nuevosDatos;
 
         final bool? solucionado = await Navigator.push(
           context,
@@ -136,6 +141,8 @@ class SalaJugadorController {
     String mensaje = solicitud['mensajeSolicitud'].toString().toLowerCase();
     String tipoCompra = "desconocido";
 
+    final prefs = await SharedPreferences.getInstance();
+
     if (mensaje.contains("comprar")) {
       tipoCompra = "COMPRA";
     } else if (mensaje.contains("subir nivel")) {
@@ -148,6 +155,10 @@ class SalaJugadorController {
       tipoCompra,
       "rechazado",
     );
+
+    await prefs.remove('cartaJugadorId');
+    await prefs.remove('jugadorId');
+    await prefs.remove('codigoAccion');
 
     return res['statusCode'] == 201 || res['status'] == true;
   }
@@ -176,7 +187,6 @@ class SalaJugadorController {
 
   // Método auxiliar para manejar el proceso de carta de fondo
   Future<void> _procesarCartaTrampaPendiente() async {
-    // 1. Intentar recuperar de SharedPreferences si no vienen en los parámetros
     final prefs = await SharedPreferences.getInstance();
 
     final int cId = prefs.getInt('cartaJugadorId') ?? 0;
@@ -193,12 +203,11 @@ class SalaJugadorController {
     }
 
     // 2. Procesar con los datos recuperados o recibidos
-    final resultado =
-        await _cartasTrampaJugadorServicio.ProcesarCartaInventarioJugador(
-          cId,
-          jId,
-          action,
-        );
+    await _cartasTrampaJugadorServicio.ProcesarCartaInventarioJugador(
+      cId,
+      jId,
+      action,
+    );
 
     listarCartasTrampaJugador(jId);
 
@@ -216,7 +225,7 @@ class SalaJugadorController {
           );
     } catch (e) {
       listaCartasTrampaJugador = [];
-      print('Error al listar las cartas trampa del jugador: $e');
+      debugPrint('Error al listar las cartas trampa del jugador: $e');
     }
   }
 

@@ -60,7 +60,7 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
 
     setState(() => _cargando = false);
 
-    if (res != null && res['status'] == true) {
+    if (res['status'] == true) {
       // Regresamos a la SalaJugador principal indicando éxito
       if (mounted) {
         Navigator.pop(context, true);
@@ -69,9 +69,7 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "Error: ${res?['userMssg'] ?? 'No se pudo liquidar'}",
-            ),
+            content: Text("Error: ${res['userMssg'] ?? 'No se pudo liquidar'}"),
           ),
         );
       }
@@ -83,9 +81,9 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
     // Es obligatorio seleccionar más propiedades si el número sigue siendo negativo
     bool puedeFinalizar = _balanceSimulado >= 0;
 
-    return WillPopScope(
+    return PopScope(
       // Evita que el jugador cierre la pantalla presionando hacia atrás sin pagar
-      onWillPop: () async => false,
+      canPop: false,
       child: Scaffold(
         backgroundColor: const Color(
           0xFFFDFDFD,

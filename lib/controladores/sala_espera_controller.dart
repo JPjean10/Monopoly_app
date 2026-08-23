@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/SalaJugador.dart';
+import 'package:monopoly_app/pantalla/registro_jugador/registro_jugador.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/sala_jugador.dart';
 import 'package:monopoly_app/servicio/JugadorServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:signalr_netcore/hub_connection.dart';

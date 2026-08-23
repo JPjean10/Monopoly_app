@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
+import 'package:monopoly_app/componentes/button/button_styles.dart';
 import 'package:monopoly_app/controladores/subasta_controller.dart';
 
 class PantallaSubasta extends StatefulWidget {
@@ -21,7 +21,7 @@ class PantallaSubasta extends StatefulWidget {
 }
 
 class _PantallaSubastaState extends State<PantallaSubasta> {
-  SubastaController _controller = SubastaController();
+  final SubastaController _controller = SubastaController();
 
   final Color _primaryColor = const Color(0xFF24B9F9);
   int _ofertaActual = 0;
@@ -299,7 +299,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                                 ),
                               ),
                               Text(
-                                'Saldo: ${_formatearCantidad(jugador!['tarjeta']?['monto'] ?? 0 as int)}',
+                                'Saldo: ${_formatearCantidad(jugador!['tarjeta']?['monto'] ?? 0)}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.black54,

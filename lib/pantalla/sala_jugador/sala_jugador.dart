@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
-import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
-import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
-import 'package:monopoly_app/pantalla/pantalla_carta_trampa/PantallaCartaTrampa.dart';
-import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
+import 'package:monopoly_app/pantalla/pantalla_carta_trampa/pantalla_carta_trampa.dart';
+import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_Notificacion_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_pago_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
@@ -244,12 +241,11 @@ class _SalajugadorState extends State<Salajugador> {
                               onTap: () async {
                                 Navigator.pop(context);
 
-                                final exito = await _controller
-                                    .ejecutarAccionBanco(
-                                      opcionBancoId: opcionBancoIdSeleccionada!,
-                                      jugadorDestinoId: jugadorId,
-                                      context: context,
-                                    );
+                                await _controller.ejecutarAccionBanco(
+                                  opcionBancoId: opcionBancoIdSeleccionada!,
+                                  jugadorDestinoId: jugadorId,
+                                  context: context,
+                                );
                                 _cargarTodo();
                               },
                             );

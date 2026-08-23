@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:monopoly_app/dio_client/DioClient.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
@@ -43,7 +44,7 @@ class HistorialCompraServicio {
       }
       return [];
     } catch (e) {
-      print("Error al obtener historial: $e");
+      debugPrint("Error al obtener historial: $e");
       return [];
     }
   }

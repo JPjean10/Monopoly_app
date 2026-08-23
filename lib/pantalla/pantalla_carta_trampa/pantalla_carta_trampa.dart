@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
+import 'package:monopoly_app/componentes/button/button_styles.dart';
 import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/main.dart';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
-import 'package:monopoly_app/pantalla/pantalla_propiedad/PantallaPropiedades.dart';
-import 'package:monopoly_app/pantalla/pantalla_subasta/PantallaSubasta.dart';
+import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.dart';
 
 class PantallaCartaTrampa extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -138,11 +137,24 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                   text: "Compra propiedad",
                   assetIcon: 'assets/icon/home_purchase.png',
                   onPressed: () {
+                    final cartaJugadorActual =
+                        listaCartasTrampaJugador[_paginaActual];
+
+                    _controller.guardarDatosDeDescuento(
+                      context: context,
+                      cartaJugadorId: cartaJugadorActual.cartaJugadorId,
+                      jugadorId: cartaJugadorActual.jugadorId,
+                      codigoAccion: 'DESCUENTO_MEJORA',
+                    );
+                    debugPrint(
+                      "PantallaCartaTrampa cartaJugadorId: ${cartaJugadorActual.cartaJugadorId} jugadorId: ${cartaJugadorActual.cartaJugadorId} codigoAccion: DESCUENTO_MEJORA",
+                    );
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => PantallaPropiedades(
-                          datosJugador: widget.datosJugador!,
+                          datosJugador: widget.datosJugador,
                           descuento: esDescuentoMejora ? montoDescuento : 0,
                           isComprar: true,
                           isSolicitud:
@@ -157,11 +169,24 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                   text: "Subir nivel de renta",
                   assetIcon: 'assets/icon/dwelling-level-up.png',
                   onPressed: () {
+                    final cartaJugadorActual =
+                        listaCartasTrampaJugador[_paginaActual];
+
+                    _controller.guardarDatosDeDescuento(
+                      context: context,
+                      cartaJugadorId: cartaJugadorActual.cartaJugadorId,
+                      jugadorId: cartaJugadorActual.jugadorId,
+                      codigoAccion: 'DESCUENTO_MEJORA',
+                    );
+                    debugPrint(
+                      "PantallaCartaTrampa cartaJugadorId: ${cartaJugadorActual.cartaJugadorId} jugadorId: ${cartaJugadorActual.cartaJugadorId} codigoAccion: DESCUENTO_MEJORA",
+                    );
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => PantallaPropiedades(
-                          datosJugador: widget.datosJugador!,
+                          datosJugador: widget.datosJugador,
                           descuento: esDescuentoMejora ? montoDescuento : 0,
                           isComprar: false,
                           isSolicitud:
@@ -181,7 +206,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                         context,
                         MaterialPageRoute(
                           builder: (context) => PantallaPropiedades(
-                            datosJugador: widget.datosJugador!,
+                            datosJugador: widget.datosJugador,
                             descuento: esDescuentoMejora ? montoDescuento : 0,
                             isComprar: true,
                             isSolicitud:

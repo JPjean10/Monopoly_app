@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
-import 'package:monopoly_app/componentes/text_field/TextField_bucador_num_Styles.dart';
+import 'package:monopoly_app/componentes/button/button_styles.dart';
+import 'package:monopoly_app/componentes/text_field/textField_bucador_num_styles.dart';
 import 'package:monopoly_app/controladores/propiedades_controller.dart';
-import 'package:monopoly_app/pantalla/pantalla_subasta/PantallaSubasta.dart';
+import 'package:monopoly_app/pantalla/pantalla_subasta/pantalla_subasta.dart';
 
 class PantallaPropiedades extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -270,7 +270,6 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     0;
                                 final int jugadorId =
                                     widget.datosJugador['jugadorId'] ?? 0;
-                                final int precio = propActual['precio'] ?? 0;
 
                                 if (widget.isSolicitud == true) {
                                   _controller.solicitarCompraONivel(
@@ -284,7 +283,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => PantallaSubasta(
-                                        datosJugador: widget.datosJugador!,
+                                        datosJugador: widget.datosJugador,
                                         propieadadId: propiedadId,
                                         nombrePropiedad:
                                             _propiedadesFiltradas[_indiceActual]['nombre'],

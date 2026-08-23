@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
-import 'package:monopoly_app/componentes/text/Text_styles.dart';
+import 'package:monopoly_app/componentes/button/button_styles.dart';
+import 'package:monopoly_app/componentes/text/text_styles.dart';
 import 'package:monopoly_app/controladores/sala_espera_controller.dart';
 
 // ==========================================

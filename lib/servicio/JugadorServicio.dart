@@ -106,7 +106,7 @@ class JugadorServicio {
       }
       return null;
     } catch (e) {
-      print("Error al refrescar jugador: $e");
+      debugPrint("Error al refrescar jugador: $e");
       return null;
     }
   }

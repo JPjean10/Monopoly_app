@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
-import 'package:monopoly_app/pantalla/registro_jugador/RegistroJugador.dart';
+import 'package:monopoly_app/pantalla/registro_jugador/registro_jugador.dart';
 import 'dart:async';
-
 import 'package:monopoly_app/servicio/CartasTrampaServicio.dart';
 
 void main() async {
@@ -53,7 +52,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
         onTimeout: () => throw Exception("Tiempo de espera agotado"),
       );
     } catch (e) {
-      print('Error al cargar datos: $e');
+      debugPrint('Error al cargar datos: $e');
       // Si falla, podrías mostrar un SnackBar o dejarlo así para que el usuario vea el error
     } finally {
       if (mounted) {

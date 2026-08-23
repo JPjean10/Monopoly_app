@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/SalaJugador.dart';
 import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
 import 'package:monopoly_app/servicio/PropiedadServicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
-import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
@@ -104,6 +103,8 @@ class PropiedadesController {
       propiedadId,
       descuento,
     );
+
+    if (!context.mounted) return;
 
     if (res['statusCode'] == 201) {
       MensajeHelper.mostrarResultado(context, res);

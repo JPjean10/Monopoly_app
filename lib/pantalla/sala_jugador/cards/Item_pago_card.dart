@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
+import 'package:monopoly_app/componentes/button/button_styles.dart';
 
 class ItemPagoCard extends StatelessWidget {
   final Map<String, dynamic> solicitud;

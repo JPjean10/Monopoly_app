@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:monopoly_app/dio_client/DioClient.dart';
 import 'package:monopoly_app/modal/CartaTrampaJugadorModel.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
@@ -28,7 +29,7 @@ class CartasTrampaJugadorServicio {
 
       return [];
     } catch (e) {
-      print("Error al obtener cartas del jugador: $e");
+      debugPrint("Error al obtener cartas del jugador: $e");
       rethrow;
     }
   }
@@ -48,7 +49,7 @@ class CartasTrampaJugadorServicio {
 
       return response.data;
     } catch (e) {
-      print("Error al usar carta trampa: $e");
+      debugPrint("Error al usar carta trampa: $e");
       return {'status': false, 'userMssg': 'Error al usar carta trampa'};
     }
   }
@@ -70,7 +71,7 @@ class CartasTrampaJugadorServicio {
 
       return response.data;
     } catch (e) {
-      print("Error al usar carta trampa: $e");
+      debugPrint("Error al usar carta trampa: $e");
       return {'status': false, 'userMssg': 'Error al usar carta trampa'};
     }
   }

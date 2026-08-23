@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/componentes/button/Button_styles.dart';
-import 'package:monopoly_app/componentes/text_field/TextField_styles.dart';
+import 'package:monopoly_app/componentes/button/button_styles.dart';
+import 'package:monopoly_app/componentes/text_field/textField_styles.dart';
 import 'package:monopoly_app/controladores/registro_controller.dart';
-import 'package:monopoly_app/servicio/JugadorServicio.dart';
 
 class RegistroJugador extends StatefulWidget {
   // Cambia a StatefulWidget para manejar el controlador
@@ -17,7 +16,6 @@ class _RegistroJugadorState extends State<RegistroJugador> {
   final TextEditingController nombre_text = TextEditingController();
   // 1. Variable para controlar si el botón está habilitado
   bool _isButtonEnabled = false;
-  final JugadorServicio _jugadorServicio = JugadorServicio();
 
   @override
   void initState() {
@@ -49,10 +47,7 @@ class _RegistroJugadorState extends State<RegistroJugador> {
       isEnabled: _isButtonEnabled, // Usa la variable de estado
       onPressed: () async {
         final nombre = nombre_text.text;
-        RegistroController.registrarYNavegar(
-          nombre: nombre_text.text,
-          context: context,
-        );
+        RegistroController.registrarYNavegar(nombre: nombre, context: context);
       },
     );
   }

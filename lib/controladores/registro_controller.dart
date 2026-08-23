@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/pantalla/sala_espera_jugador/SalaEsperaJugador.dart';
+import 'package:monopoly_app/pantalla/sala_espera_jugador/sala_espera_jugador.dart';
 import 'package:monopoly_app/servicio/JugadorServicio.dart';
-import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 
 class RegistroController {
   static final JugadorServicio _jugadorServicio = JugadorServicio();

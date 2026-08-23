@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/servicio/JugadorServicio.dart';
 import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
-import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 
 class SubastaController {
   final JugadorServicio _jugadorServicio = JugadorServicio();
@@ -27,6 +27,8 @@ class SubastaController {
       propiedadId,
       precio,
     );
+
+    if (!context.mounted) return;
 
     if (res['statusCode'] == 201) {
       MensajeHelper.mostrarResultado(context, res);

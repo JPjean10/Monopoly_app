@@ -3,7 +3,7 @@ import 'package:monopoly_app/modal/CartaTrampaJugadorModel.dart';
 import 'dart:math';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
 import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
-import 'package:monopoly_app/util/helpers/MensajeHelper.dart';
+import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<CartaTrampaJugadorModel> listaCartasTrampaJugador = [];
@@ -44,7 +44,7 @@ class CartaTrampaController {
           );
     } catch (e) {
       listaCartasTrampaJugador = [];
-      print('Error al listar las cartas trampa del jugador: $e');
+      debugPrint('Error al listar las cartas trampa del jugador: $e');
     }
   }
 
@@ -69,6 +69,8 @@ class CartaTrampaController {
         codigoAccion,
       );
 
+      if (!context.mounted) return false;
+
       final String? mensaje = resultado['userMssg'] as String?;
       if (mensaje != null && mensaje.trim().isNotEmpty) {
         MensajeHelper.mostrarResultado(context, resultado);
@@ -80,7 +82,7 @@ class CartaTrampaController {
 
       return true; // Ejecución normal terminada
     } catch (e) {
-      print('Error al procesar la carta trampa: $e');
+      debugPrint('Error al procesar la carta trampa: $e');
       return false;
     }
   }
@@ -94,12 +96,8 @@ class CartaTrampaController {
     onInversionExpress, // Callback para activar animación y botones en la UI
   }) async {
     try {
-      // Si la carta es "INVERSÍON_EXPRESS", ignoramos el backend y activamos la lógica de UI
+      // Si la carta es "DESCUENTO_MEJORA", ignoramos el backend y activamos la lógica de UI
       if (codigoAccion == "DESCUENTO_MEJORA") {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('cartaJugadorId', cartaJugadorId);
-        await prefs.setInt('jugadorId', jugadorId);
-        await prefs.setString('codigoAccion', codigoAccion);
         onInversionExpress();
         return false; // Indica que se debe manejar la interfaz especial
       }
@@ -112,6 +110,8 @@ class CartaTrampaController {
             codigoAccion,
           );
 
+      if (!context.mounted) return false;
+
       final String? mensaje = resultado['userMssg'] as String?;
       if (mensaje != null && mensaje.trim().isNotEmpty) {
         MensajeHelper.mostrarResultado(context, resultado);
@@ -123,8 +123,20 @@ class CartaTrampaController {
 
       return true; // Ejecución normal terminada
     } catch (e) {
-      print('Error al procesar la carta trampa: $e');
+      debugPrint('Error al procesar la carta trampa: $e');
       return false;
     }
+  }
+
+  Future<void> guardarDatosDeDescuento({
+    required BuildContext context,
+    required int cartaJugadorId,
+    required int jugadorId,
+    required String codigoAccion,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('cartaJugadorId', cartaJugadorId);
+    await prefs.setInt('jugadorId', jugadorId);
+    await prefs.setString('codigoAccion', codigoAccion);
   }
 }

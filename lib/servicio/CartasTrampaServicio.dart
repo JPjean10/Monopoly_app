@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:monopoly_app/dio_client/DioClient.dart';
 import 'package:monopoly_app/modal/CartaTrampaModel.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
@@ -26,7 +27,7 @@ class CartasTrampaServicio {
 
       return [];
     } catch (e) {
-      print('Error al obtener cartas trampa: $e');
+      debugPrint('Error al obtener cartas trampa: $e');
       rethrow;
     }
   }
