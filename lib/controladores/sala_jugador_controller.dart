@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/pantalla/pantalla_escaneo/pantalla_escaneo.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/pantalla_bancarrota.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
-import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
-import 'package:monopoly_app/servicio/HistorialCompraServicio.dart';
-import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
-import 'package:monopoly_app/servicio/jugadorServicio.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/model/propi_jugador_model.dart';
+import 'package:monopoly_app/servicio/cartas_trampa_jugador_servicio.dart';
+import 'package:monopoly_app/servicio/historial_compra_servicio.dart';
+import 'package:monopoly_app/servicio/propi_jugador_servicio.dart';
+import 'package:monopoly_app/servicio/jugador_servicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -149,7 +149,7 @@ class SalaJugadorController {
       tipoCompra = "SUBIR NIVEL";
     }
 
-    final res = await _historialCompraServicio.InsertHistorial(
+    final res = await _historialCompraServicio.insertHistorial(
       solicitud['jugadorId'],
       solicitud['propiedadId'],
       tipoCompra,
@@ -166,63 +166,21 @@ class SalaJugadorController {
   Future<bool> aceptarSolicitud({
     required Map<String, dynamic> solicitud,
   }) async {
-    final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
+    final res = await _propiJugadorServicio.adquirirOMejorarPropiedad(
       solicitud['jugadorId'],
       solicitud['propiedadId'],
       solicitud['descuento'],
     );
 
-    final bool exitoOperacion =
-        res['statusCode'] == 201 ||
+    return res['statusCode'] == 201 ||
         res['statusCode'] == 401 ||
         res['status'] == true;
-
-    if (exitoOperacion && res['statusCode'] == 201) {
-      // 2. Procesamiento de carta como tarea secundaria (no bloqueante para la UI)
-      _procesarCartaTrampaPendiente();
-    }
-
-    return exitoOperacion;
-  }
-
-  // Método auxiliar para manejar el proceso de carta de fondo
-  Future<void> _procesarCartaTrampaPendiente() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final int cId = prefs.getInt('cartaJugadorId') ?? 0;
-    final int jId = prefs.getInt('jugadorId') ?? 0;
-    final String action = prefs.getString('codigoAccion') ?? "";
-
-    debugPrint("cartaJugadorId: $cId jugadorId: $jId codigoAccion: $action");
-
-    // Validar que tengamos datos para procesar
-    if (cId == 0 || jId == 0 || action.isEmpty) {
-      debugPrint(
-        "Error: No se pudieron obtener los datos de la carta o jugador.",
-      );
-    }
-
-    // 2. Procesar con los datos recuperados o recibidos
-    await _cartasTrampaJugadorServicio.ProcesarCartaInventarioJugador(
-      cId,
-      jId,
-      action,
-    );
-
-    listarCartasTrampaJugador(jId);
-
-    // Limpiar o actualizar el storage según sea necesario
-    await prefs.remove('cartaJugadorId');
-    await prefs.remove('jugadorId');
-    await prefs.remove('codigoAccion');
   }
 
   Future<void> listarCartasTrampaJugador(int jugadorId) async {
     try {
-      listaCartasTrampaJugador =
-          await _cartasTrampaJugadorServicio.ListarCartasTrampaJugador(
-            jugadorId,
-          );
+      listaCartasTrampaJugador = await _cartasTrampaJugadorServicio
+          .listarCartasTrampaJugador(jugadorId);
     } catch (e) {
       listaCartasTrampaJugador = [];
       debugPrint('Error al listar las cartas trampa del jugador: $e');

@@ -122,7 +122,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
               const SizedBox(height: 8),
               Text(
                 widget.nombrePropiedad,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.1,
@@ -137,7 +137,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -168,7 +168,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -199,7 +199,9 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                             max: maxOferta.toDouble(),
                             divisions: maxOferta > 0 ? maxOferta : 1,
                             activeColor: _primaryColor,
-                            inactiveColor: _primaryColor.withOpacity(0.2),
+                            inactiveColor: _primaryColor.withValues(
+                              alpha: 0.02,
+                            ),
                             label: _ofertaActual.toString(),
                             onChanged: (value) {
                               setState(() {
@@ -221,13 +223,13 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Button_styles(
+                    ButtonStyles(
                       text: 'SUBASTAR',
                       onPressed: () {
                         final jugadorId =
                             _jugadores[_jugadorSeleccionado]['jugadorId'];
 
-                        _controller.ProcesarSubasta(
+                        _controller.procesarSubasta(
                           context: context,
                           jugadorId: jugadorId,
                           propiedadId: widget.propieadadId,
@@ -246,7 +248,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black..withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -309,7 +311,7 @@ class _PantallaSubastaState extends State<PantallaSubasta> {
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),

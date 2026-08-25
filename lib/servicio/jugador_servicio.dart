@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/dio_client/DioClient.dart';
+import 'package:monopoly_app/dio_client/dio_client.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class JugadorServicio {

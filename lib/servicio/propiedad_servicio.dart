@@ -1,4 +1,4 @@
-import 'package:monopoly_app/dio_client/DioClient.dart';
+import 'package:monopoly_app/dio_client/dio_client.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class Propiedadservicio {

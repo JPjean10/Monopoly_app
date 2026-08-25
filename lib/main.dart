@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:monopoly_app/modal/CartaTrampaModel.dart';
+import 'package:monopoly_app/modal/carta_trampa_model.dart';
 import 'package:monopoly_app/pantalla/registro_jugador/registro_jugador.dart';
 import 'dart:async';
-import 'package:monopoly_app/servicio/CartasTrampaServicio.dart';
+import 'package:monopoly_app/servicio/cartas_trampa_servicio.dart';
 
 void main() async {
   // 2. ASEGURA LA INICIALIZACIÓN DE LOS BINDINGS

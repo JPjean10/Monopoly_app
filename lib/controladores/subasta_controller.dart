@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/servicio/JugadorServicio.dart';
-import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
+import 'package:monopoly_app/servicio/jugador_servicio.dart';
+import 'package:monopoly_app/servicio/propi_jugador_servicio.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 
 class SubastaController {
@@ -16,13 +16,13 @@ class SubastaController {
   }
 
   // --- ACCIONES Y BOTONES ---
-  Future<void> ProcesarSubasta({
+  Future<void> procesarSubasta({
     required BuildContext context,
     required int jugadorId,
     required int propiedadId,
     required int precio,
   }) async {
-    final res = await _propiJugadorServicio.ProcesarSubasta(
+    final res = await _propiJugadorServicio.procesarSubasta(
       jugadorId,
       propiedadId,
       precio,

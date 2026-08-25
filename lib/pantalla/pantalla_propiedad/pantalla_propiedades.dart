@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/button_styles.dart';
-import 'package:monopoly_app/componentes/text_field/textField_bucador_num_styles.dart';
+import 'package:monopoly_app/componentes/text_field/textfield_bucador_num_styles.dart';
 import 'package:monopoly_app/controladores/propiedades_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_subasta/pantalla_subasta.dart';
 
@@ -125,7 +125,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                   // 2. BUSCADOR
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField_bucador_num_Styles(
+                    child: TextFieldBuscadorNumStyles(
                       hintText: "Escribe el ID de la propiedad...",
                       controller: _searchController,
                       onChanged: _onSearchChanged,
@@ -160,8 +160,8 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                         decoration: BoxDecoration(
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.3,
+                                              color: Colors.black.withValues(
+                                                alpha: 0.3,
                                               ),
                                               spreadRadius: 2,
                                               blurRadius: 15,
@@ -190,7 +190,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.blue.withOpacity(0.1),
+                                      color: Colors.blue.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: widget.descuento > 0
@@ -244,7 +244,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Button_styles(
+                          child: ButtonStyles(
                             text: "regresar",
                             assetIcon: 'assets/icon/Return.png',
                             isEnabled: true,
@@ -253,7 +253,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                         ),
                         const SizedBox(width: 15),
                         Expanded(
-                          child: Button_styles(
+                          child: ButtonStyles(
                             text: widget.isComprar == true
                                 ? "comprar"
                                 : "subir nivel",

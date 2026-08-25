@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/pantalla/sala_espera_jugador/sala_espera_jugador.dart';
-import 'package:monopoly_app/servicio/JugadorServicio.dart';
+import 'package:monopoly_app/servicio/jugador_servicio.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 
 class RegistroController {

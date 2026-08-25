@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 // --- CAJA DE TEXTO PERSONALIZADA ---
-class TextField_bucador_num_Styles extends StatelessWidget {
+class TextFieldBuscadorNumStyles extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final IconData? icon;
   final String? assetIcon;
   final Function(String)? onChanged;
 
-  const TextField_bucador_num_Styles({
+  const TextFieldBuscadorNumStyles({
     super.key,
     required this.hintText,
     required this.controller,

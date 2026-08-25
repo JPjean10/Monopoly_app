@@ -37,7 +37,7 @@ class ItemPagoCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Button_styles(
+                  child: ButtonStyles(
                     text: "cancelar",
                     assetIcon: 'assets/icon/Cancel.png',
                     isEnabled: true,
@@ -46,7 +46,7 @@ class ItemPagoCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Button_styles(
+                  child: ButtonStyles(
                     text: "aceptar",
                     assetIcon: 'assets/icon/Done.png',
                     isEnabled: true,

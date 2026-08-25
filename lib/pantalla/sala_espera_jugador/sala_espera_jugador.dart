@@ -74,7 +74,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -86,35 +86,33 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
               children: [
                 const SizedBox(height: 10),
                 // Lista dinámica de jugadores
-                ...jugadores
-                    .map(
-                      (j) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${j['nombre']} :",
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            Text(
-                              "${j['tarjeta']['monto']}",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                ...jugadores.map(
+                  (j) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${j['nombre']} :",
+                          style: const TextStyle(fontSize: 18),
                         ),
-                      ),
-                    )
-                    .toList(),
+                        Text(
+                          "${j['tarjeta']['monto']}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 25),
                 Row(
                   children: [
                     Expanded(
-                      child: Button_styles(
+                      child: ButtonStyles(
                         text: "cancelar",
                         assetIcon: "assets/icon/Close.png",
                         onPressed: () => _controller.cancelarRegistro(context),
@@ -122,7 +120,7 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Button_styles(
+                      child: ButtonStyles(
                         text: "Iniciar partida",
                         assetIcon: 'assets/icon/Advance.png',
                         isEnabled: _isIniciarEnabled,
@@ -205,20 +203,20 @@ class _SalaEsperajugadorState extends State<SalaEsperajugador> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 15,
-                  offset: const Offset(0, 5),
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text_styles(text: "Esperando a los jugadores..."),
+                const TextStyles(text: "Esperando a los jugadores..."),
                 const SizedBox(height: 25),
-                Button_completo_styles(
+                ButtonCompletoStyles(
                   text: "cancelar",
                   assetIcon: "assets/icon/Close.png",
                   onPressed: () => _controller.cancelarRegistro(context),

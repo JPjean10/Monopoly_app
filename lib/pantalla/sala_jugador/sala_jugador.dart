@@ -3,7 +3,7 @@ import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_carta_trampa/pantalla_carta_trampa.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_Notificacion_card.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_pago_card.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/cards/item_pago_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
 
 class Salajugador extends StatefulWidget {
@@ -17,11 +17,11 @@ class Salajugador extends StatefulWidget {
 
 class _SalajugadorState extends State<Salajugador> {
   final SalaJugadorController _controller = SalaJugadorController();
-  final TextEditingController id_o_nombre_text = TextEditingController();
+  final TextEditingController idONombreText = TextEditingController();
 
   int _indiceActual = 0;
   bool _hayPagosPendientes = false;
-  List<Map<String, dynamic>> _solicitudesPendientes = [];
+  final List<Map<String, dynamic>> _solicitudesPendientes = [];
   Map<String, dynamic>? _datosJugadorActual;
   List<dynamic> _historialTransacciones = [];
   List<dynamic> _propiedadesJugador = [];
@@ -50,7 +50,7 @@ class _SalajugadorState extends State<Salajugador> {
 
   @override
   void dispose() {
-    id_o_nombre_text.dispose();
+    idONombreText.dispose();
     super.dispose();
   }
 
@@ -72,6 +72,13 @@ class _SalajugadorState extends State<Salajugador> {
         _historialTransacciones = hist;
       });
     }
+  }
+
+  void _actulizarCartasInventario() async {
+    int miId =
+        _datosJugadorActual?['jugadorId'] ?? widget.datosJugador['jugadorId'];
+
+    _controller.listarCartasTrampaJugador(miId);
   }
 
   void _onPropiedadTap(Map<String, dynamic> prop) {

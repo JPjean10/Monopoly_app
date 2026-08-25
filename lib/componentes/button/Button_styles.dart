@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Button_completo_styles extends StatelessWidget {
+class ButtonCompletoStyles extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed; // 1. Cambiado a opcional (nullable)
   final IconData? icon;
   final String? assetIcon;
   final bool isEnabled; // 2. Nueva propiedad para controlar el estado
 
-  const Button_completo_styles({
+  const ButtonCompletoStyles({
     super.key,
     required this.text,
     required this.onPressed,
@@ -76,14 +76,14 @@ class Button_completo_styles extends StatelessWidget {
   }
 }
 
-class Button_styles extends StatelessWidget {
+class ButtonStyles extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed; // 1. Cambiado a opcional (nullable)
   final IconData? icon;
   final String? assetIcon;
   final bool isEnabled; // 2. Nueva propiedad para controlar el estado
 
-  const Button_styles({
+  const ButtonStyles({
     super.key,
     required this.text,
     required this.onPressed,

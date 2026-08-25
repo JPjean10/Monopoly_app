@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/button_styles.dart';
-import 'package:monopoly_app/componentes/text_field/textField_styles.dart';
+import 'package:monopoly_app/componentes/text_field/textfield_styles.dart';
 import 'package:monopoly_app/controladores/registro_controller.dart';
 
 class RegistroJugador extends StatefulWidget {
@@ -13,7 +13,7 @@ class RegistroJugador extends StatefulWidget {
 
 class _RegistroJugadorState extends State<RegistroJugador> {
   // 1. Creas el controlador para el nombre
-  final TextEditingController nombre_text = TextEditingController();
+  final TextEditingController nombreText = TextEditingController();
   // 1. Variable para controlar si el botón está habilitado
   bool _isButtonEnabled = false;
 
@@ -21,14 +21,14 @@ class _RegistroJugadorState extends State<RegistroJugador> {
   void initState() {
     super.initState();
     // 2. Escuchar los cambios del TextField
-    nombre_text.addListener(_onTextChanged);
+    nombreText.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
     // 3. Limpiar el listener y el controlador
-    nombre_text.removeListener(_onTextChanged);
-    nombre_text.dispose();
+    nombreText.removeListener(_onTextChanged);
+    nombreText.dispose();
     super.dispose();
   }
 
@@ -36,17 +36,17 @@ class _RegistroJugadorState extends State<RegistroJugador> {
   void _onTextChanged() {
     setState(() {
       // Se habilita si el texto no está vacío (quitando espacios en blanco)
-      _isButtonEnabled = nombre_text.text.trim().isNotEmpty;
+      _isButtonEnabled = nombreText.text.trim().isNotEmpty;
     });
   }
 
-  Button_completo_styles btn_ButtonCompleto() {
-    return Button_completo_styles(
+  ButtonCompletoStyles btnButtonCompleto() {
+    return ButtonCompletoStyles(
       text: "iniciar juego",
       assetIcon: 'assets/icon/Advance.png',
       isEnabled: _isButtonEnabled, // Usa la variable de estado
       onPressed: () async {
-        final nombre = nombre_text.text;
+        final nombre = nombreText.text;
         RegistroController.registrarYNavegar(nombre: nombre, context: context);
       },
     );
@@ -70,11 +70,11 @@ class _RegistroJugadorState extends State<RegistroJugador> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 15,
-                  offset: const Offset(0, 5),
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
@@ -83,15 +83,15 @@ class _RegistroJugadorState extends State<RegistroJugador> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // USANDO TU CAJA DE TEXTO PERSONALIZADA
-                TextField_styles(
+                TextFieldStyles(
                   hintText: 'nombre',
                   icon: Icons.person_add_alt_1,
-                  controller: nombre_text, // PASAS EL CONTROLADOR AQUÍ
+                  controller: nombreText, // PASAS EL CONTROLADOR AQUÍ
                 ),
 
                 const SizedBox(height: 25),
 
-                btn_ButtonCompleto(),
+                btnButtonCompleto(),
               ],
             ),
           ),

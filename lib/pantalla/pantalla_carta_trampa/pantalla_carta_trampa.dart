@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/button_styles.dart';
 import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/main.dart';
-import 'package:monopoly_app/modal/CartaTrampaModel.dart';
+import 'package:monopoly_app/modal/carta_trampa_model.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.dart';
 
 class PantallaCartaTrampa extends StatefulWidget {
@@ -133,23 +133,10 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Button_styles(
+                ButtonStyles(
                   text: "Compra propiedad",
                   assetIcon: 'assets/icon/home_purchase.png',
                   onPressed: () {
-                    final cartaJugadorActual =
-                        listaCartasTrampaJugador[_paginaActual];
-
-                    _controller.guardarDatosDeDescuento(
-                      context: context,
-                      cartaJugadorId: cartaJugadorActual.cartaJugadorId,
-                      jugadorId: cartaJugadorActual.jugadorId,
-                      codigoAccion: 'DESCUENTO_MEJORA',
-                    );
-                    debugPrint(
-                      "PantallaCartaTrampa cartaJugadorId: ${cartaJugadorActual.cartaJugadorId} jugadorId: ${cartaJugadorActual.cartaJugadorId} codigoAccion: DESCUENTO_MEJORA",
-                    );
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -165,22 +152,12 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                   },
                 ),
                 const SizedBox(height: 12),
-                Button_styles(
+                ButtonStyles(
                   text: "Subir nivel de renta",
                   assetIcon: 'assets/icon/dwelling-level-up.png',
                   onPressed: () {
                     final cartaJugadorActual =
                         listaCartasTrampaJugador[_paginaActual];
-
-                    _controller.guardarDatosDeDescuento(
-                      context: context,
-                      cartaJugadorId: cartaJugadorActual.cartaJugadorId,
-                      jugadorId: cartaJugadorActual.jugadorId,
-                      codigoAccion: 'DESCUENTO_MEJORA',
-                    );
-                    debugPrint(
-                      "PantallaCartaTrampa cartaJugadorId: ${cartaJugadorActual.cartaJugadorId} jugadorId: ${cartaJugadorActual.cartaJugadorId} codigoAccion: DESCUENTO_MEJORA",
-                    );
 
                     Navigator.push(
                       context,
@@ -198,7 +175,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                 ),
                 const SizedBox(height: 12),
                 if (!esDescuentoMejora)
-                  Button_styles(
+                  ButtonStyles(
                     text: "Subastar propiedad",
                     icon: Icons.gavel_outlined,
                     onPressed: () {
@@ -346,7 +323,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
 
                 // Se oculta el botón inferior cuando _mostrarOpcionesInversion es true
                 if (!_mostrarOpcionesInversion)
-                  Button_styles(
+                  ButtonStyles(
                     text: widget.mostrarInventario ? 'Usar' : 'Continuar',
                     icon: widget.mostrarInventario
                         ? Icons.inventory_2_outlined

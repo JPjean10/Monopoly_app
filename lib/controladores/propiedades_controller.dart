@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
-import 'package:monopoly_app/servicio/PropiedadServicio.dart';
+import 'package:monopoly_app/servicio/propi_jugador_servicio.dart';
+import 'package:monopoly_app/servicio/propiedad_servicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:signalr_netcore/hub_connection.dart';
@@ -98,7 +98,7 @@ class PropiedadesController {
     required int propiedadId,
     required int descuento,
   }) async {
-    final res = await _propiJugadorServicio.AdquirirOMejorarPropiedad(
+    final res = await _propiJugadorServicio.adquirirOMejorarPropiedad(
       jugadorId,
       propiedadId,
       descuento,

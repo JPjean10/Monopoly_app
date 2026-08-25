@@ -32,10 +32,17 @@ class _PantallaEscaneoState extends State<PantallaEscaneo> {
               final List<Barcode> barcodes = capture.barcodes;
               if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
                 _yaEscaneado = true;
+
+                // 1. Guardamos la referencia al Navigator ANTES del await
+                final navigator = Navigator.of(context);
+                final codigo = barcodes.first.rawValue;
+
+                // 2. Operación asíncrona
                 await cameraController.stop();
 
+                // 3. Verificamos que el widget siga activo antes de navegar
                 if (mounted) {
-                  Navigator.pop(context, barcodes.first.rawValue);
+                  navigator.pop(codigo);
                 }
               }
             },
@@ -98,9 +105,15 @@ class _PantallaEscaneoState extends State<PantallaEscaneo> {
                   IconButton(
                     icon: const Icon(Icons.undo, color: Colors.white),
                     onPressed: () async {
+                      // 1. Guardamos el Navigator antes de la operación asíncrona
+                      final navigator = Navigator.of(context);
+
+                      // 2. Operación asíncrona
                       await cameraController.stop();
+
+                      // 3. Navegación segura usando la referencia guardada
                       if (mounted) {
-                        Navigator.pop(context);
+                        navigator.pop();
                       }
                     },
                   ),
@@ -110,21 +123,14 @@ class _PantallaEscaneoState extends State<PantallaEscaneo> {
           ),
 
           // 5. ICONO INFERIOR
-          Positioned(
+          const Positioned(
             bottom: 50,
             left: 0,
             right: 0,
             child: Column(
               children: [
-                const Icon(
-                  Icons.view_headline,
-                  color: Color(0xFF00B4FF),
-                  size: 40,
-                ),
-                const Text(
-                  "Código QR",
-                  style: TextStyle(color: Color(0xFF00B4FF)),
-                ),
+                Icon(Icons.view_headline, color: Color(0xFF00B4FF), size: 40),
+                Text("Código QR", style: TextStyle(color: Color(0xFF00B4FF))),
               ],
             ),
           ),
@@ -148,7 +154,7 @@ class ScannerOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.7);
+    final paint = Paint()..color = Colors.black.withValues(alpha: 0.7);
 
     // Región del agujero central
     final rect = Rect.fromCenter(

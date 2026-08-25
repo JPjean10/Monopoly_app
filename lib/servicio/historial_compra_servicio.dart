@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
-import 'package:monopoly_app/dio_client/DioClient.dart';
+import 'package:monopoly_app/dio_client/dio_client.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class HistorialCompraServicio {
-  Future<Map<String, dynamic>> InsertHistorial(
+  Future<Map<String, dynamic>> insertHistorial(
     int jugadorId,
     int propiedadId,
     String tipoCompra,

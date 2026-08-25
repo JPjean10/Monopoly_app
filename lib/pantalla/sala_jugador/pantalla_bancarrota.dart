@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/servicio/PropiJugadorServicio.dart';
+import 'package:monopoly_app/servicio/propi_jugador_servicio.dart';
 
 class PantallaBancarrota extends StatefulWidget {
   final int jugadorId;
@@ -52,7 +52,6 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
     // Unimos los IDs seleccionados por comas ej: "3,5"
     String idsString = _propiedadesSeleccionadasIds.join(',');
 
-    // Enviamos RECIÉN TODO DE GOLPE al presionar el botón del círculo rojo
     final res = await _propiJugadorServicio.enviarVentaMasiva(
       widget.jugadorId,
       idsString,

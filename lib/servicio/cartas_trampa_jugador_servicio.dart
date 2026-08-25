@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:monopoly_app/dio_client/DioClient.dart';
-import 'package:monopoly_app/modal/CartaTrampaJugadorModel.dart';
+import 'package:monopoly_app/dio_client/dio_client.dart';
+import 'package:monopoly_app/modal/carta_trampa_jugador_model.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class CartasTrampaJugadorServicio {
   final Dio _dio = Dioclient.dio; // O tu instancia configurada de Dio
 
-  Future<List<CartaTrampaJugadorModel>> ListarCartasTrampaJugador(
+  Future<List<CartaTrampaJugadorModel>> listarCartasTrampaJugador(
     int jugadorId,
   ) async {
     try {
@@ -34,7 +34,7 @@ class CartasTrampaJugadorServicio {
     }
   }
 
-  Future<Map<String, dynamic>> ProcesarCartaTrampa(
+  Future<Map<String, dynamic>> procesarCartaTrampa(
     int jugadorId,
     String codigoAccion,
   ) async {
@@ -54,7 +54,7 @@ class CartasTrampaJugadorServicio {
     }
   }
 
-  Future<Map<String, dynamic>> ProcesarCartaInventarioJugador(
+  Future<Map<String, dynamic>> procesarCartaInventarioJugador(
     int cartaJugadorId,
     int jugadorId,
     String codigoAccion,

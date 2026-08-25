@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 // --- CAJA DE TEXTO PERSONALIZADA ---
-class TextField_styles extends StatelessWidget {
+class TextFieldStyles extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final IconData? icon;
   final String? assetIcon;
 
-  const TextField_styles({
+  const TextFieldStyles({
     super.key,
     required this.hintText,
     required this.controller,

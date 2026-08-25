@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/dio_client/DioClient.dart';
-import 'package:monopoly_app/pantalla/sala_jugador/model/PropiJugadorModel.dart';
+import 'package:monopoly_app/dio_client/dio_client.dart';
+import 'package:monopoly_app/pantalla/sala_jugador/model/propi_jugador_model.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 
 class PropiJugadorServicio {
-  Future<Map<String, dynamic>> AdquirirOMejorarPropiedad(
+  Future<Map<String, dynamic>> adquirirOMejorarPropiedad(
     int jugadorId,
     int propiedadId,
     int descuento,
@@ -82,15 +82,16 @@ class PropiJugadorServicio {
       );
       return response.data;
     } on DioException catch (e) {
-      if (e.response != null && e.response?.data != null)
+      if (e.response != null && e.response?.data != null) {
         return e.response?.data;
+      }
       return {'statusCode': 500, 'userMssg': 'Error de red en la transacción'};
     } catch (e) {
       return {'statusCode': 500, 'userMssg': 'Error inesperado: $e'};
     }
   }
 
-  Future<Map<String, dynamic>> ProcesarSubasta(
+  Future<Map<String, dynamic>> procesarSubasta(
     int jugadorId,
     int propiedadId,
     int precio,

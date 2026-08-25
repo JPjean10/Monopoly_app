@@ -32,7 +32,7 @@ class ItemNotificacionCard extends StatelessWidget {
     // 3. Formatear el texto del título (tipoEstado)
     String tipoEstadoText = '';
     if (hasTipo && hasEstado) {
-      tipoEstadoText = "${rawTipo}: ${rawEstado}".toLowerCase();
+      tipoEstadoText = "$rawTipo: $rawEstado".toLowerCase();
     } else if (hasTipo) {
       tipoEstadoText = rawTipo.toString().toLowerCase();
     } else if (hasEstado) {
@@ -51,7 +51,7 @@ class ItemNotificacionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(3, 3),

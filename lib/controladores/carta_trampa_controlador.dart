@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/modal/CartaTrampaJugadorModel.dart';
+import 'package:monopoly_app/modal/carta_trampa_jugador_model.dart';
 import 'dart:math';
-import 'package:monopoly_app/modal/CartaTrampaModel.dart';
-import 'package:monopoly_app/servicio/CartasTrampaJugadorServicio.dart';
+import 'package:monopoly_app/modal/carta_trampa_model.dart';
+import 'package:monopoly_app/servicio/cartas_trampa_jugador_servicio.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,10 +38,8 @@ class CartaTrampaController {
 
   Future<void> listarCartasTrampaJugador(int jugadorId) async {
     try {
-      listaCartasTrampaJugador =
-          await _cartasTrampaJugadorServicio.ListarCartasTrampaJugador(
-            jugadorId,
-          );
+      listaCartasTrampaJugador = await _cartasTrampaJugadorServicio
+          .listarCartasTrampaJugador(jugadorId);
     } catch (e) {
       listaCartasTrampaJugador = [];
       debugPrint('Error al listar las cartas trampa del jugador: $e');
@@ -64,7 +62,7 @@ class CartaTrampaController {
       }
 
       // --- Si no es Inversión Express, procesa normalmente con el backend ---
-      final resultado = await _cartasTrampaJugadorServicio.ProcesarCartaTrampa(
+      final resultado = await _cartasTrampaJugadorServicio.procesarCartaTrampa(
         jugadorId,
         codigoAccion,
       );
@@ -103,8 +101,8 @@ class CartaTrampaController {
       }
 
       // --- Si no es Inversión Express, procesa normalmente con el backend ---
-      final resultado =
-          await _cartasTrampaJugadorServicio.ProcesarCartaInventarioJugador(
+      final resultado = await _cartasTrampaJugadorServicio
+          .procesarCartaInventarioJugador(
             cartaJugadorId,
             jugadorId,
             codigoAccion,
@@ -126,17 +124,5 @@ class CartaTrampaController {
       debugPrint('Error al procesar la carta trampa: $e');
       return false;
     }
-  }
-
-  Future<void> guardarDatosDeDescuento({
-    required BuildContext context,
-    required int cartaJugadorId,
-    required int jugadorId,
-    required String codigoAccion,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('cartaJugadorId', cartaJugadorId);
-    await prefs.setInt('jugadorId', jugadorId);
-    await prefs.setString('codigoAccion', codigoAccion);
   }
 }

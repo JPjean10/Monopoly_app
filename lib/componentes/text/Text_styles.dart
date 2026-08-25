@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class Text_styles extends StatelessWidget {
+class TextStyles extends StatelessWidget {
   final String text;
 
-  const Text_styles({super.key, required this.text});
+  const TextStyles({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       textAlign: TextAlign.start,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.bold,
         color: Colors.black87,

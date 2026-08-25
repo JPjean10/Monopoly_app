@@ -1,4 +1,4 @@
-import 'package:monopoly_app/modal/CartaTrampaModel.dart';
+import 'package:monopoly_app/modal/carta_trampa_model.dart';
 
 class CartaTrampaJugadorModel {
   final int cartaJugadorId;
