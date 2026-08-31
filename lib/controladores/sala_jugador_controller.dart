@@ -198,8 +198,9 @@ class SalaJugadorController {
     required int jugadorId,
   }) async {
     // --- Si no es Inversión Express, procesa normalmente con el backend ---
-    final resultado = await _cartasTrampaJugadorServicio
-        .procesarCartaInventarioJugador(cartaJugadorId);
+    await _cartasTrampaJugadorServicio.procesarCartaInventarioJugador(
+      cartaJugadorId,
+    );
   }
 
   // --- VISTAS EMERGENTES ---

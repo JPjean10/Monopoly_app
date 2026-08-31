@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_carta_trampa/pantalla_carta_trampa.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.dart';
