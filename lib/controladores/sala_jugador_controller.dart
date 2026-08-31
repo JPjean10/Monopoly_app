@@ -10,7 +10,6 @@ import 'package:monopoly_app/servicio/jugador_servicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
@@ -27,6 +26,7 @@ class SalaJugadorController {
   void initSignalR({
     required Function(Map<String, dynamic> nuevaSolicitud) onNuevaSolicitud,
     required VoidCallback onActualizarDatos,
+    required VoidCallback onActualizarCartasTrampaJugador,
   }) {
     hubConnection = HubConnectionBuilder().withUrl(ApiConst.ws).build();
 
@@ -40,12 +40,17 @@ class SalaJugadorController {
           'nombreJugador': arguments[2] as String,
           'mensajeSolicitud': arguments[3] as String,
           'descuento': arguments[4] as int,
+          'idDescuento': arguments[5] as int,
         });
       }
     });
 
     hubConnection.on("actualizar_datos_partida", (arguments) {
       onActualizarDatos();
+    });
+
+    hubConnection.on("actualizar-cartas-trampa-jugador", (arguments) {
+      onActualizarCartasTrampaJugador();
     });
 
     hubConnection.start();
@@ -102,6 +107,16 @@ class SalaJugadorController {
     return await _historialCompraServicio.obtenerHistorialCompras();
   }
 
+  Future<void> listarCartasTrampaJugador(int jugadorId) async {
+    try {
+      listaCartasTrampaJugador = await _cartasTrampaJugadorServicio
+          .listarCartasTrampaJugador(jugadorId);
+    } catch (e) {
+      listaCartasTrampaJugador = [];
+      debugPrint('Error al listar las cartas trampa del jugador: $e');
+    }
+  }
+
   // --- ACCIONES Y BOTONES ---
   Future<void> procesarCobroRenta({
     required BuildContext context,
@@ -141,8 +156,6 @@ class SalaJugadorController {
     String mensaje = solicitud['mensajeSolicitud'].toString().toLowerCase();
     String tipoCompra = "desconocido";
 
-    final prefs = await SharedPreferences.getInstance();
-
     if (mensaje.contains("comprar")) {
       tipoCompra = "COMPRA";
     } else if (mensaje.contains("subir nivel")) {
@@ -156,10 +169,6 @@ class SalaJugadorController {
       "rechazado",
     );
 
-    await prefs.remove('cartaJugadorId');
-    await prefs.remove('jugadorId');
-    await prefs.remove('codigoAccion');
-
     return res['statusCode'] == 201 || res['status'] == true;
   }
 
@@ -172,19 +181,25 @@ class SalaJugadorController {
       solicitud['descuento'],
     );
 
+    if (res['statusCode'] == 201) {
+      procesarCartaTrampaJugador(
+        cartaJugadorId: solicitud['idDescuento'],
+        jugadorId: solicitud['jugadorId'],
+      );
+    }
+
     return res['statusCode'] == 201 ||
         res['statusCode'] == 401 ||
         res['status'] == true;
   }
 
-  Future<void> listarCartasTrampaJugador(int jugadorId) async {
-    try {
-      listaCartasTrampaJugador = await _cartasTrampaJugadorServicio
-          .listarCartasTrampaJugador(jugadorId);
-    } catch (e) {
-      listaCartasTrampaJugador = [];
-      debugPrint('Error al listar las cartas trampa del jugador: $e');
-    }
+  Future<void> procesarCartaTrampaJugador({
+    required int cartaJugadorId,
+    required int jugadorId,
+  }) async {
+    // --- Si no es Inversión Express, procesa normalmente con el backend ---
+    final resultado = await _cartasTrampaJugadorServicio
+        .procesarCartaInventarioJugador(cartaJugadorId);
   }
 
   // --- VISTAS EMERGENTES ---

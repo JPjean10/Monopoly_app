@@ -65,6 +65,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
         CartaTrampaModel(
           cartaId: 0,
           titulo: 'Sin cartas',
+          codigoAccion: ' ',
           descripcion: widget.mostrarInventario
               ? 'Aún no tienes cartas trampa en tu inventario.'
               : 'No hay cartas disponibles.',
@@ -108,6 +109,15 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
   Widget _buildOpcionesInversion(CartaTrampaModel carta) {
     final esDescuentoMejora = carta.codigoAccion == 'DESCUENTO_MEJORA';
     final montoDescuento = carta.monto ?? 0;
+
+    // Asignación condicional segura de cartaJugadorActual
+    final cartaJugadorActual =
+        (_mostrarOpcionesInversion &&
+            listaCartasTrampaJugador.isNotEmpty &&
+            _paginaActual < listaCartasTrampaJugador.length)
+        ? listaCartasTrampaJugador[_paginaActual]
+        : null;
+
     return Container(
       key: const ValueKey('opciones'),
       padding: const EdgeInsets.all(16),
@@ -146,6 +156,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                           isComprar: true,
                           isSolicitud:
                               esDescuentoMejora, // Indica que es una compra directa
+                          idDescuento: cartaJugadorActual?.cartaJugadorId,
                         ),
                       ),
                     );
@@ -156,9 +167,6 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                   text: "Subir nivel de renta",
                   assetIcon: 'assets/icon/dwelling-level-up.png',
                   onPressed: () {
-                    final cartaJugadorActual =
-                        listaCartasTrampaJugador[_paginaActual];
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -168,6 +176,7 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                           isComprar: false,
                           isSolicitud:
                               esDescuentoMejora, // Indica que es una solicitud de subir nivel
+                          idDescuento: cartaJugadorActual?.cartaJugadorId,
                         ),
                       ),
                     );
@@ -336,10 +345,10 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                         final cartaActual = _cartasMostradas[_paginaActual];
 
                         bool esProcesoNormal = await _controller
-                            .procesarCartaTrampa(
+                            .procesarCartaTrampaOInversionExpress(
                               context: context,
                               jugadorId: widget.datosJugador['jugadorId']!,
-                              codigoAccion: cartaActual.codigoAccion ?? '',
+                              codigoAccion: cartaActual.codigoAccion,
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;
@@ -371,15 +380,13 @@ class _PantallaCartaTrampaState extends State<PantallaCartaTrampa>
                         }
 
                         bool esProcesoNormal = await _controller
-                            .procesarCartaTrampaJugador(
+                            .procesarCartaTrampaJugadorODescuentoMejora(
                               context: context,
                               cartaJugadorId: cartaJugadorActual.cartaJugadorId,
                               jugadorId: widget.datosJugador['jugadorId']!,
-                              codigoAccion:
-                                  cartaJugadorActual
-                                      .cartaTrampaModel
-                                      .codigoAccion ??
-                                  '',
+                              codigoAccion: cartaJugadorActual
+                                  .cartaTrampaModel
+                                  .codigoAccion,
                               onInversionExpress: () async {
                                 setState(() {
                                   _mostrarOpcionesInversion = true;

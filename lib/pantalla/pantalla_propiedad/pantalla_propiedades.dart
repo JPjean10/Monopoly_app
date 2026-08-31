@@ -10,6 +10,7 @@ class PantallaPropiedades extends StatefulWidget {
   final bool isComprar;
   final bool isSolicitud;
   final bool? isSubasta;
+  final int? idDescuento;
 
   const PantallaPropiedades({
     super.key,
@@ -18,6 +19,7 @@ class PantallaPropiedades extends StatefulWidget {
     required this.isComprar,
     required this.isSolicitud,
     this.isSubasta,
+    this.idDescuento,
   });
 
   @override
@@ -277,6 +279,7 @@ class _PantallaPropiedadesState extends State<PantallaPropiedades> {
                                     datosJugador: widget.datosJugador,
                                     propiedadActual: propActual,
                                     descuento: widget.descuento,
+                                    idDescuento: widget.idDescuento ?? 0,
                                   );
                                 } else if (widget.isSubasta == true) {
                                   Navigator.push(

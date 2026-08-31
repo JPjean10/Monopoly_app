@@ -56,17 +56,10 @@ class CartasTrampaJugadorServicio {
 
   Future<Map<String, dynamic>> procesarCartaInventarioJugador(
     int cartaJugadorId,
-    int jugadorId,
-    String codigoAccion,
   ) async {
     try {
       final response = await _dio.delete(
-        '${ApiConst.baseUrl}${ApiConst.controlador_carta_trampa_jugador}',
-        data: {
-          'cartaJugadorId': cartaJugadorId,
-          'jugadorId': jugadorId,
-          'cartaTrampaModel': {'codigoAccion': codigoAccion},
-        },
+        '${ApiConst.baseUrl}${ApiConst.controlador_carta_trampa_jugador}/$cartaJugadorId',
       );
 
       return response.data;

@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:monopoly_app/modal/carta_trampa_model.dart';
 import 'package:monopoly_app/servicio/cartas_trampa_jugador_servicio.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 List<CartaTrampaJugadorModel> listaCartasTrampaJugador = [];
 
@@ -47,7 +46,7 @@ class CartaTrampaController {
   }
 
   // --- ACCIONES Y BOTONES ---
-  Future<bool> procesarCartaTrampa({
+  Future<bool> procesarCartaTrampaOInversionExpress({
     required BuildContext context,
     required int jugadorId,
     required String codigoAccion,
@@ -85,7 +84,7 @@ class CartaTrampaController {
     }
   }
 
-  Future<bool> procesarCartaTrampaJugador({
+  Future<bool> procesarCartaTrampaJugadorODescuentoMejora({
     required BuildContext context,
     required int cartaJugadorId,
     required int jugadorId,
@@ -102,11 +101,7 @@ class CartaTrampaController {
 
       // --- Si no es Inversión Express, procesa normalmente con el backend ---
       final resultado = await _cartasTrampaJugadorServicio
-          .procesarCartaInventarioJugador(
-            cartaJugadorId,
-            jugadorId,
-            codigoAccion,
-          );
+          .procesarCartaInventarioJugador(cartaJugadorId);
 
       if (!context.mounted) return false;
 
@@ -115,8 +110,9 @@ class CartaTrampaController {
         MensajeHelper.mostrarResultado(context, resultado);
       }
 
+      // --- AQUÍ ESTABA EL PROBLEMA: AGREGAR ESTO ---
       if (resultado['statusCode'] == 201) {
-        listarCartasTrampaJugador(jugadorId);
+        await listarCartasTrampaJugador(jugadorId);
       }
 
       return true; // Ejecución normal terminada

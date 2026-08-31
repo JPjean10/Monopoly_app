@@ -51,6 +51,7 @@ class PropiedadesController {
     required Map<String, dynamic> datosJugador,
     required Map<String, dynamic> propiedadActual,
     required int descuento,
+    required int idDescuento,
   }) async {
     final int jugadorId = datosJugador['jugadorId'];
     final String nombreJugador = datosJugador['nombre'] ?? '';
@@ -61,7 +62,6 @@ class PropiedadesController {
     if (hubConnection.state != HubConnectionState.Connected) {
       await hubConnection.start();
     }
-
     if (hubConnection.state == HubConnectionState.Connected) {
       await hubConnection.invoke(
         "EnviarSolicitudCompra",
@@ -71,6 +71,7 @@ class PropiedadesController {
           nombreJugador,
           mensajeSolicitud,
           descuento,
+          idDescuento,
         ],
       );
 

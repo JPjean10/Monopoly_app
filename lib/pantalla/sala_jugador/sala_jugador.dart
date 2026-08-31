@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monopoly_app/controladores/carta_trampa_controlador.dart';
 import 'package:monopoly_app/controladores/sala_jugador_controller.dart';
 import 'package:monopoly_app/pantalla/pantalla_carta_trampa/pantalla_carta_trampa.dart';
 import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.dart';
@@ -45,6 +46,9 @@ class _SalajugadorState extends State<Salajugador> {
       onActualizarDatos: () {
         _cargarTodo();
       },
+      onActualizarCartasTrampaJugador: () {
+        _controller.listarCartasTrampaJugador(widget.datosJugador['jugadorId']);
+      },
     );
   }
 
@@ -72,13 +76,6 @@ class _SalajugadorState extends State<Salajugador> {
         _historialTransacciones = hist;
       });
     }
-  }
-
-  void _actulizarCartasInventario() async {
-    int miId =
-        _datosJugadorActual?['jugadorId'] ?? widget.datosJugador['jugadorId'];
-
-    _controller.listarCartasTrampaJugador(miId);
   }
 
   void _onPropiedadTap(Map<String, dynamic> prop) {

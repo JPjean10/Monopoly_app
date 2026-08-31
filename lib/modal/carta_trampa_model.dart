@@ -3,7 +3,7 @@ class CartaTrampaModel {
   final String? titulo;
   final String? descripcion;
   final int? monto;
-  final String? codigoAccion;
+  final String codigoAccion;
   final int peso;
 
   CartaTrampaModel({
@@ -11,7 +11,7 @@ class CartaTrampaModel {
     this.titulo,
     this.descripcion,
     this.monto,
-    this.codigoAccion,
+    required this.codigoAccion,
     required this.peso,
   });
 
@@ -21,7 +21,7 @@ class CartaTrampaModel {
       titulo: json['titulo'] as String?,
       descripcion: json['descripcion'] as String?,
       monto: json['monto'] as int?,
-      codigoAccion: json['codigoAccion'] as String?,
+      codigoAccion: json['codigoAccion'] as String,
       peso: json['peso'] as int,
     );
   }
