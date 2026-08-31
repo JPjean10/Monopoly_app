@@ -21,6 +21,8 @@ class SalaJugadorController {
   final CartasTrampaJugadorServicio _cartasTrampaJugadorServicio =
       CartasTrampaJugadorServicio();
   late HubConnection hubConnection;
+  // Variable de control para evitar duplicar la pantalla de bancarrota
+  bool _enPantallaBancarrota = false;
 
   // --- SIGNALR ---
   void initSignalR({
@@ -70,12 +72,17 @@ class SalaJugadorController {
           int.tryParse(nuevosDatos['tarjeta']?['monto']?.toString() ?? '0') ??
           0;
 
-      if (montoObtenido < 0 && context.mounted) {
+      // VALIDACIÓN: Solo abre la pantalla si el monto es negativo Y NO ESTÁ YA ABIERTA
+      if (montoObtenido < 0 && !_enPantallaBancarrota && context.mounted) {
+        _enPantallaBancarrota = true; // Marcamos que la pantalla está activa
+
         List<dynamic> propiedades = await _propiJugadorServicio
             .obtenerPropiedadesJugador(jugadorId);
 
-        // Verificamos de nuevo antes de usar el Navigator
-        if (!context.mounted) return nuevosDatos;
+        if (!context.mounted) {
+          _enPantallaBancarrota = false;
+          return nuevosDatos;
+        }
 
         final bool? solucionado = await Navigator.push(
           context,
@@ -87,6 +94,9 @@ class SalaJugadorController {
             ),
           ),
         );
+
+        _enPantallaBancarrota =
+            false; // Liberamos el flag al cerrar la pantalla
 
         if (solucionado == true && context.mounted) {
           return await refrescarDatosJugador(
