@@ -269,6 +269,12 @@ class _SalajugadorState extends State<Salajugador> {
                               onTap: () async {
                                 Navigator.pop(context);
 
+                                // Verifica si la opción seleccionada es "Cobrar GO"
+                                if (nombreOpcionSeleccionada == "Cobrar GO") {
+                                  // Ajusta este string según el nombre real de tu opción
+                                  await AudioHelper.cobroGo();
+                                }
+
                                 await _controller.ejecutarAccionBanco(
                                   opcionBancoId: opcionBancoIdSeleccionada!,
                                   jugadorDestinoId: jugadorId,

@@ -16,4 +16,8 @@ class AudioHelper {
   static Future<void> inicioDePartida() async {
     await _player.play(AssetSource('audio/efecto_de_inicio_de_partida.mp3'));
   }
+
+  static Future<void> cobroGo() async {
+    await _player.play(AssetSource('audio/efecto_de_cobro_go.mp3'));
+  }
 }
