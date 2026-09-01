@@ -3,6 +3,7 @@ import 'package:monopoly_app/pantalla/registro_jugador/registro_jugador.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/sala_jugador.dart';
 import 'package:monopoly_app/servicio/jugador_servicio.dart';
 import 'package:monopoly_app/util/consts/ApiConst.dart';
+import 'package:monopoly_app/util/helpers/audio_helper.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 
@@ -85,7 +86,10 @@ class SalaEsperaController {
   }
 
   /// Redirecciona al jugador a su tablero de juego principal
-  Future<void> navegarASalaJugador(BuildContext context) async {
+  Future<void> navegarASalaJugador(
+    BuildContext context, {
+    bool reproducirAudio = false,
+  }) async {
     final res = await _jugadorServicio.listarJugadores();
     if (res['statusCode'] == 200 && context.mounted) {
       List lista = res['data'];
@@ -93,6 +97,12 @@ class SalaEsperaController {
         (j) => j['nombre'] == nombreUsuario,
         orElse: () => null,
       );
+
+      // ... lógica para encontrar el jugador ...
+      if (reproducirAudio) {
+        await AudioHelper.inicioDePartida();
+      }
+
       if (yo != null) {
         Navigator.pushReplacement(
           context,

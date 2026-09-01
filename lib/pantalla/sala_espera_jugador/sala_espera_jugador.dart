@@ -31,7 +31,8 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
   void _inicializarLogica() async {
     await _controller.initSignalR(
       onListaActualizada: _actualizarPantalla,
-      onPartidaIniciada: () => _controller.navegarASalaJugador(context),
+      onPartidaIniciada: () =>
+          _controller.navegarASalaJugador(context, reproducirAudio: true),
       onConvertidoEnBanco: () {}, // Ya es banco, no necesita volver a saltar
     );
     _actualizarPantalla();
@@ -170,7 +171,8 @@ class _SalaEsperajugadorState extends State<SalaEsperajugador> {
     await _controller.initSignalR(
       onListaActualizada:
           () {}, // No renderiza lista en esta pantalla según tu diseño
-      onPartidaIniciada: () => _controller.navegarASalaJugador(context),
+      onPartidaIniciada: () =>
+          _controller.navegarASalaJugador(context, reproducirAudio: true),
       onConvertidoEnBanco: _cambiarABancoAutomatico,
     );
   }
