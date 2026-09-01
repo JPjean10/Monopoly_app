@@ -264,7 +264,7 @@ class _PantallaBancarrotaState extends State<PantallaBancarrota> {
           if (_cargando)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 child: const Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
