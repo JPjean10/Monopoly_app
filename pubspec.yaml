@@ -16,6 +16,7 @@ dependencies:
   json_annotation: 4.8.1
   cupertino_icons: ^1.0.8
   signalr_netcore: ^1.3.5
+  audioplayers: ^6.0.0 # Verifica la versión más reciente
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -30,3 +31,4 @@ flutter:
     - assets/carta_trampa.png
     - assets/icon/         # Incluye todos los iconos de esa carpeta
     - assets/cartas/       # <--- Esto incluye todos los archivos dentro de 'cartas'
+    - assets/audio/         # <--- Esto incluye todos los archivos dentro de 'audio'

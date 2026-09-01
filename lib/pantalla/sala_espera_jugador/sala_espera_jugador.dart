@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:monopoly_app/componentes/button/button_styles.dart';
 import 'package:monopoly_app/componentes/text/text_styles.dart';
 import 'package:monopoly_app/controladores/sala_espera_controller.dart';
+import 'package:monopoly_app/util/helpers/audio_helper.dart';
 
 // ==========================================
 // PANTALLA: SALA ESPERA JUGADOR BANCO
@@ -38,6 +39,12 @@ class _SalaEsperajugadorBancoState extends State<SalaEsperajugadorBanco> {
 
   void _actualizarPantalla() async {
     final lista = await _controller.cargarJugadores();
+
+    // Si la lista creció, es que llegó un nuevo jugador
+    if (jugadores.isNotEmpty && lista.length > jugadores.length) {
+      await AudioHelper.jugadorInsertado();
+    }
+
     if (mounted) {
       setState(() {
         jugadores = lista;

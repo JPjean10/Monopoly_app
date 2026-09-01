@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:monopoly_app/pantalla/sala_espera_jugador/sala_espera_jugador.dart';
 import 'package:monopoly_app/servicio/jugador_servicio.dart';
+import 'package:monopoly_app/util/helpers/audio_helper.dart';
 import 'package:monopoly_app/util/helpers/mensaje_helper.dart';
 
 class RegistroController {
@@ -49,6 +50,7 @@ class RegistroController {
     // Mostramos el mensaje final usando tu helper
     if (context.mounted) {
       MensajeHelper.mostrarResultado(context, resultado);
+      await AudioHelper.jugadorInsertado(); // Reproducir el efecto de sonido
     }
   }
 }
