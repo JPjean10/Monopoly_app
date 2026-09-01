@@ -5,6 +5,7 @@ import 'package:monopoly_app/pantalla/pantalla_propiedad/pantalla_propiedades.da
 import 'package:monopoly_app/pantalla/sala_jugador/cards/Item_Notificacion_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_pago_card.dart';
 import 'package:monopoly_app/pantalla/sala_jugador/cards/item_propiedad_card.dart';
+import 'package:monopoly_app/util/helpers/audio_helper.dart';
 
 class Salajugador extends StatefulWidget {
   final Map<String, dynamic> datosJugador;
@@ -25,6 +26,7 @@ class _SalajugadorState extends State<Salajugador> {
   Map<String, dynamic>? _datosJugadorActual;
   List<dynamic> _historialTransacciones = [];
   List<dynamic> _propiedadesJugador = [];
+  Color _colorMonto = Colors.black;
 
   @override
   void initState() {
@@ -60,11 +62,34 @@ class _SalajugadorState extends State<Salajugador> {
   void _cargarTodo() async {
     int miId =
         _datosJugadorActual?['jugadorId'] ?? widget.datosJugador['jugadorId'];
+    // Guardamos el monto antes de actualizar
+    final montoAnterior = _datosJugadorActual?['tarjeta']?['monto'];
 
     final nuevosDatos = await _controller.refrescarDatosJugador(
       context: context,
       jugadorId: miId,
     );
+
+    // Obtenemos el nuevo monto
+    final nuevoMonto = nuevosDatos?['tarjeta']?['monto'];
+
+    if (montoAnterior != null &&
+        nuevoMonto != null &&
+        montoAnterior != nuevoMonto) {
+      // --- EFECTO VISUAL ---
+      setState(() {
+        _colorMonto = (nuevoMonto < montoAnterior) ? Colors.red : Colors.green;
+      });
+
+      // Reproducir sonido
+      await AudioHelper.descuentoDeDinero();
+
+      // Regresar al color original tras un breve tiempo
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (mounted) setState(() => _colorMonto = Colors.black);
+      });
+    }
+
     final props = await _controller.cargarPropiedades(miId);
     final hist = await _controller.cargarHistorial();
 
@@ -495,7 +520,16 @@ class _SalajugadorState extends State<Salajugador> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text("S/ $monto", style: const TextStyle(fontSize: 24)),
+              // Aquí aplicamos el color animado
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  fontSize: 24,
+                  color: _colorMonto, // Se aplicará la transición aquí
+                  fontWeight: FontWeight.bold,
+                ),
+                child: Text("S/ $monto"),
+              ),
             ],
           ),
         ),

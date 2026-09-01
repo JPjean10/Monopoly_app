@@ -8,4 +8,8 @@ class AudioHelper {
       AssetSource('audio/efecto_de_jugador_insertado_monopoly.mp3'),
     );
   }
+
+  static Future<void> descuentoDeDinero() async {
+    await _player.play(AssetSource('audio/efecto_de_descuento_de_dinero.mp3'));
+  }
 }
