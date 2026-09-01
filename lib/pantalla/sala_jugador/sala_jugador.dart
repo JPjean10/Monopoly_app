@@ -277,7 +277,16 @@ class _SalajugadorState extends State<Salajugador> {
                                     "Pagar Cárcel") {
                                   // Ajusta este string según el nombre real de tu opción
                                   await AudioHelper.pagarCarcel();
+                                } else if (nombreOpcionSeleccionada ==
+                                    "Pagar Viaje") {
+                                  // Ajusta este string según el nombre real de tu opción
+                                  await AudioHelper.pagarViaje();
                                 }
+
+                                // antes de que _cargarTodo() inicie el proceso de actualización y descuento
+                                await Future.delayed(
+                                  const Duration(milliseconds: 800),
+                                );
 
                                 await _controller.ejecutarAccionBanco(
                                   opcionBancoId: opcionBancoIdSeleccionada!,
