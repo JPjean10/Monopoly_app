@@ -273,6 +273,10 @@ class _SalajugadorState extends State<Salajugador> {
                                 if (nombreOpcionSeleccionada == "Cobrar GO") {
                                   // Ajusta este string según el nombre real de tu opción
                                   await AudioHelper.cobroGo();
+                                } else if (nombreOpcionSeleccionada ==
+                                    "Pagar Cárcel") {
+                                  // Ajusta este string según el nombre real de tu opción
+                                  await AudioHelper.pagarCarcel();
                                 }
 
                                 await _controller.ejecutarAccionBanco(

@@ -20,4 +20,8 @@ class AudioHelper {
   static Future<void> cobroGo() async {
     await _player.play(AssetSource('audio/efecto_de_cobro_go.mp3'));
   }
+
+  static Future<void> pagarCarcel() async {
+    await _player.play(AssetSource('audio/efecto_de_celda.mp3'));
+  }
 }
